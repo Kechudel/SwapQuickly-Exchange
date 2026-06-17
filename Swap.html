@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SwapQ — Swap crypto fast, easy and securely. Bitcoin, Ethereum, Solana, BNB and more. P2P exchange with real human support.">
+  <title>SwapQ — Swap Quickly</title>
+
+  <!--
+    FIX 1: Google Fonts — added preconnect for faster load,
+    and added font-display=swap so text stays visible while fonts load.
+    Without this, text flashes invisible on slow connections.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+
+    /* Screen reader only utility */
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── TOKENS ── */
+    :root {
+      --navy:     #1B2A4A;
+      --green:    #39E000;
+      --green2:   #2ABB00;
+      --white:    #FFFFFF;
+      --offwhite: #F4F8F4;
+      --gray:     #6B7280;
+      --dark:     #0D1A2E;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    /*
+      FIX 2: System font stack as fallback so layout never breaks
+      if Google Fonts fails to load (offline, blocked, etc.)
+    */
+    body {
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+                   'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: var(--white);
+      color: var(--navy);
+      overflow-x: hidden;
+      /* FIX 3: Prevent iOS font size auto-adjustment */
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 48px;
+      background: rgba(255,255,255,0.95);
+      /* FIX 4: -webkit- prefix for Safari support */
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(27,42,74,0.08);
+    }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo span.swap { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--navy); }
+    .nav-logo span.q    { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--green); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--navy); font-weight: 500; font-size: 0.95rem; transition: color .2s; }
+    .nav-links a:hover { color: var(--green2); }
+    .nav-cta {
+      background: var(--green); color: var(--navy);
+      border: none; padding: 10px 24px; border-radius: 6px;
+      font-weight: 700; font-size: 0.9rem; cursor: pointer;
+      text-decoration: none; transition: background .2s, transform .15s;
+      /* FIX 5: display:inline-flex so it renders correctly as an <a> tag */
+      display: inline-flex; align-items: center;
+    }
+    .nav-cta:hover { background: var(--green2); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 60%, #1e3a5f 100%);
+      display: flex; align-items: center;
+      padding: 120px 48px 80px;
+      gap: 60px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -100px; right: -100px;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(57,224,0,0.12) 0%, transparent 70%);
+      border-radius: 50%;
+      /* FIX 6: pointer-events:none so it never blocks clicks */
+      pointer-events: none;
+    }
+    .hero-text { flex: 1; max-width: 560px; z-index: 1; }
+    .hero-eyebrow {
+      display: inline-block;
+      background: rgba(57,224,0,0.15); color: var(--green);
+      border: 1px solid rgba(57,224,0,0.3);
+      border-radius: 4px; padding: 4px 12px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: .08em;
+      text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      font-weight: 700; line-height: 1.15;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    /* ── WORD CYCLE ANIMATION ── */
+    /*
+      FIX 7: Changed height from em-based to px-based so it doesn't
+      collapse when Rajdhani hasn't loaded yet. Also added min-width
+      so layout doesn't jump between words of different lengths.
+    */
+    .word-cycle-wrap {
+      display: inline-block;
+      position: relative;
+      height: 52px;
+      overflow: hidden;
+      vertical-align: middle;
+      min-width: 240px;
+    }
+    .word-cycle-wrap .word {
+      display: block;
+      position: absolute;
+      left: 0; top: 0;
+      color: var(--green);
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+      white-space: nowrap;
+      line-height: 1.15;
+    }
+    .word-cycle-wrap .word.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .word-cycle-wrap .word.exit {
+      opacity: 0;
+      transform: translateY(-40px);
+    }
+
+    .hero p {
+      font-size: 1.05rem; color: rgba(255,255,255,0.72);
+      line-height: 1.7; margin-bottom: 36px; max-width: 460px;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--green); color: var(--navy);
+      padding: 14px 32px; border-radius: 7px;
+      font-weight: 700; font-size: 1rem;
+      text-decoration: none; display: inline-block;
+      transition: background .2s, transform .15s;
+    }
+    .btn-primary:hover { background: var(--green2); transform: translateY(-2px); }
+    .btn-secondary {
+      background: transparent; color: var(--white);
+      padding: 14px 32px; border-radius: 7px;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      font-weight: 600; font-size: 1rem;
+      text-decoration: none; display: inline-block;
+      transition: border-color .2s, background .2s;
+    }
+    .btn-secondary:hover { border-color: var(--green); background: rgba(57,224,0,0.07); }
+
+    /* ── ORBIT ── */
+    .hero-visual {
+      flex: 1; display: flex; justify-content: center;
+      align-items: center; min-height: 420px; z-index: 1;
+    }
+    .orbit-scene { position: relative; width: 360px; height: 360px; flex-shrink: 0; }
+    .orbit-ring {
+      position: absolute; top: 50%; left: 50%;
+      border-radius: 50%; border: 2px dashed rgba(57,224,0,0.25);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .orbit-ring-1 { width: 200px; height: 200px; }
+    .orbit-ring-2 { width: 300px; height: 300px; }
+    .orbit-ring-3 { width: 360px; height: 360px; }
+
+    .orbit-center {
+      position: absolute; top: 50%; left: 50%;
+      width: 80px; height: 80px;
+      transform: translate(-50%, -50%);
+      background: linear-gradient(135deg, #1e3a5f, var(--navy));
+      border-radius: 50%; border: 3px solid var(--green);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 30px rgba(57,224,0,0.4);
+      animation: pulse-glow 3s ease-in-out infinite;
+      /* FIX 8: z-index so center is above rings */
+      z-index: 2;
+    }
+    .orbit-center svg { width: 36px; height: 36px; }
+
+    .coin {
+      position: absolute; top: 50%; left: 50%;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700; color: white;
+      text-align: center; line-height: 1.2;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+      /* FIX 9: will-change for GPU compositing on orbit animations */
+      will-change: transform;
+      z-index: 3;
+    }
+    .coin-btc { background: linear-gradient(135deg, #F7931A, #E8851A); }
+    .coin-sol { background: linear-gradient(135deg, #9945FF, #7B3FE4); }
+    .coin-bnb { background: linear-gradient(135deg, #F3BA2F, #D4A429); }
+    .coin-eth { background: linear-gradient(135deg, #627EEA, #4B6CD4); }
+    .coin-ada { background: linear-gradient(135deg, #0D1E2E, #1a3a5c); border: 1.5px solid #3CCBDA; }
+    .coin-trx { background: linear-gradient(135deg, #EF0027, #CC0022); }
+
+    @keyframes orbit1 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(100px) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(100px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit2 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(150px) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(150px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit3 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(180px) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(180px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes pulse-glow {
+      0%,100% { box-shadow: 0 0 30px rgba(57,224,0,0.4); }
+      50%      { box-shadow: 0 0 50px rgba(57,224,0,0.8), 0 0 80px rgba(57,224,0,0.3); }
+    }
+    @keyframes spin-arrows { to { transform: rotate(360deg); } }
+
+    /* FIX 10: renamed --start-angle to --sa (shorter, avoids any whitespace parse bugs) */
+    .coin-btc { --sa: 0deg;   animation: orbit1 8s linear infinite; }
+    .coin-eth { --sa: 180deg; animation: orbit1 8s linear infinite; }
+    .coin-sol { --sa: 60deg;  animation: orbit2 12s linear infinite; }
+    .coin-bnb { --sa: 240deg; animation: orbit2 12s linear infinite; }
+    .coin-ada { --sa: 120deg; animation: orbit3 16s linear infinite; }
+    .coin-trx { --sa: 300deg; animation: orbit3 16s linear infinite; }
+    .spin-icon { animation: spin-arrows 4s linear infinite; }
+
+    /* ── TICKER ── */
+    .ticker-bar {
+      background: var(--navy);
+      padding: 12px 0;
+      overflow: hidden;
+      border-top: 2px solid var(--green);
+    }
+    .ticker-track {
+      display: flex;
+      animation: ticker-scroll 22s linear infinite;
+      width: max-content;
+      will-change: transform;
+    }
+    .ticker-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 32px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.88rem; font-weight: 500;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      white-space: nowrap;
+    }
+    .ticker-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SECTIONS SHARED ── */
+    section { padding: 96px 48px; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--green2);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 700; color: var(--navy);
+      line-height: 1.15; margin-bottom: 16px;
+    }
+    .section-sub { font-size: 1rem; color: var(--gray); line-height: 1.7; max-width: 520px; }
+
+    /* ── HOW IT WORKS ── */
+    .how { background: var(--offwhite); }
+    .how-inner { max-width: 1100px; margin: 0 auto; }
+    .how-header { text-align: center; margin-bottom: 64px; }
+    .how-header .section-sub { margin: 0 auto; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 32px;
+    }
+    .step-card {
+      background: white; border-radius: 12px;
+      padding: 36px 28px;
+      border: 1px solid rgba(27,42,74,0.08);
+      position: relative; overflow: hidden;
+      transition: box-shadow .25s, transform .25s;
+    }
+    .step-card:hover { box-shadow: 0 12px 40px rgba(27,42,74,0.12); transform: translateY(-4px); }
+    .step-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--green), transparent);
+    }
+    .step-num {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 2.8rem; font-weight: 700;
+      color: rgba(57,224,0,0.2); line-height: 1;
+      margin-bottom: 16px;
+    }
+    .step-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      background: rgba(57,224,0,0.12);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 16px;
+    }
+    /* FIX 11: SVG inside step-icon was missing explicit fill:none — added to CSS */
+    .step-icon svg {
+      width: 24px; height: 24px;
+      stroke: var(--green2); fill: none; stroke-width: 2;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .step-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
+    .step-card p  { font-size: 0.9rem; color: var(--gray); line-height: 1.65; }
+
+    /* ── COINS ── */
+    .coins-section { background: white; }
+    .coins-inner { max-width: 1100px; margin: 0 auto; }
+    .coins-header { text-align: center; margin-bottom: 56px; }
+    .coins-header .section-sub { margin: 0 auto; }
+    .coins-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 20px;
+    }
+    .coin-card {
+      background: var(--offwhite); border-radius: 12px;
+      padding: 28px 20px; text-align: center;
+      border: 1px solid rgba(27,42,74,0.06);
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+    }
+    .coin-card:hover { border-color: var(--green); box-shadow: 0 4px 20px rgba(57,224,0,0.15); transform: translateY(-3px); }
+    .coin-card .coin-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      margin: 0 auto 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .coin-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+    /* FIX 12: coin-card span was inheriting green from .hero h1 span — scoped it */
+    .coin-card> span { font-size: 0.78rem; color: var(--gray); }
+
+    /* ── APP / PHONE SECTION ── */
+    .app-section {
+      background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 100%);
+      padding: 96px 48px;
+      display: flex; align-items: center; gap: 72px;
+      overflow: hidden;
+    }
+    .app-text { flex: 1; max-width: 500px; }
+    .app-text .section-label { color: var(--green); }
+    .app-text .section-title { color: white; }
+    .app-text .section-sub { color: rgba(255,255,255,0.65); margin-bottom: 36px; }
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .feature-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      color: rgba(255,255,255,0.85); font-size: 0.95rem;
+    }
+    /* FIX 13: ::before pseudo on li — added display:flex properly for cross-browser */
+    .feature-list li::before {
+      content: '✓';
+      flex-shrink: 0;
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(57,224,0,0.2); color: var(--green);
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; margin-top: 1px;
+    }
+
+    /* ── STORE BUTTONS ── */
+    .store-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 32px; }
+    .store-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: transparent;
+      border: 2px solid rgba(255,255,255,0.35);
+      border-radius: 10px;
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      transition: border-color .2s, background .2s, transform .15s;
+      cursor: pointer;
+    }
+    .store-btn:hover { border-color: var(--green); background: rgba(57,224,0,0.07); transform: translateY(-2px); }
+    .store-btn svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .store-btn-text { display: flex; flex-direction: column; }
+    .store-btn-text small { font-size: 0.65rem; color: rgba(255,255,255,0.6); line-height: 1; margin-bottom: 2px; letter-spacing: .03em; }
+    .store-btn-text strong { font-size: 1rem; font-weight: 700; line-height: 1; color: white; }
+
+    /* ── PHONE MOCKUP ── */
+    .phones-visual {
+      flex: 1; display: flex; justify-content: center; align-items: center;
+      position: relative; min-height: 380px;
+    }
+    .phone {
+      width: 200px; height: 360px; border-radius: 30px;
+      background: linear-gradient(180deg, #1e2d45 0%, #0d1827 100%);
+      border: 3px solid rgba(255,255,255,0.15);
+      position: relative; overflow: hidden;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    }
+    .phone-screen-content {
+      padding: 40px 16px 16px;
+      height: 100%;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .phone-row { display: flex; justify-content: space-between; align-items: center; }
+    .phone-input {
+      background: rgba(255,255,255,0.07); border-radius: 8px;
+      padding: 12px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .phone-coin-badge {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.65rem; font-weight: 700; color: white;
+    }
+    .badge-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+    .phone-swap-btn {
+      background: var(--green); color: var(--navy);
+      border-radius: 8px; padding: 10px;
+      text-align: center; font-size: 0.65rem; font-weight: 700;
+      margin-top: auto;
+    }
+    @keyframes float-phone {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-12px); }
+    }
+    .phone-main {
+      position: relative; z-index: 2;
+      animation: float-phone 5s ease-in-out infinite;
+      will-change: transform;
+    }
+    .phone-accent {
+      position: absolute; bottom: -30px; right: -50px;
+      width: 200px; height: 360px; border-radius: 30px;
+      background: linear-gradient(180deg, rgba(27,42,74,0.8) 0%, rgba(13,24,39,0.95) 100%);
+      border: 3px solid rgba(57,224,0,0.2);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+      transform: rotate(8deg) scale(0.9);
+      z-index: 1;
+    }
+
+    /* ── CONTACT ── */
+    .contact-section { background: var(--offwhite); padding: 80px 48px; }
+    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; }
+    .contact-inner .section-title { margin-bottom: 12px; }
+    .contact-inner> p { color: var(--gray); margin-bottom: 40px; font-size: 1rem; line-height: 1.7; }
+    .contact-cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    .contact-card {
+      background: white; border-radius: 12px; padding: 32px 36px;
+      border: 1px solid rgba(27,42,74,0.1);
+      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      text-decoration: none; color: var(--navy);
+      transition: box-shadow .2s, transform .2s, border-color .2s;
+      min-width: 220px;
+    }
+    .contact-card:hover { border-color: var(--green); box-shadow: 0 8px 30px rgba(57,224,0,0.15); transform: translateY(-3px); }
+    .cc-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cc-email     { background: rgba(27,42,74,0.08); }
+    .cc-whatsapp  { background: rgba(37,211,102,0.12); }
+    .contact-card h3 { font-size: 1rem; font-weight: 700; }
+    .contact-card p  { font-size: 0.85rem; color: var(--gray); text-align: center; line-height: 1.5; }
+
+    /* ── FAQ ── */
+    .faq-section { background: white; }
+    .faq-inner { max-width: 760px; margin: 0 auto; }
+    .faq-header { text-align: center; margin-bottom: 56px;}
+    .faq-item { border-bottom: 1px solid rgba(27,42,74,0.1); }
+    .faq-item:first-of-type { border-top: 1px solid rgba(27,42,74,0.1); }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      padding: 22px 0; text-align: left; cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 16px;
+      font-family: 'Inter', system-ui, sans-serif;
+      font-size: 0.98rem; font-weight: 600;
+      color: var(--navy);
+      /* FIX 14: explicit color prevents browser button default grey on some systems */
+    }
+    .faq-q .arrow {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(57,224,0,0.12); color: var(--green2);
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform .25s, background .25s;
+      font-size: 1rem; line-height: 1;
+    }
+    .faq-item.open .faq-q .arrow { transform: rotate(180deg); background: var(--green); color: white; }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height .35s ease;
+    }
+    .faq-a p { padding: 0 0 20px; color: var(--gray); font-size: 0.92rem; line-height: 1.75; }
+    .faq-item.open .faq-a { max-height: 300px; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark); padding: 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 20px;
+    }
+    .footer-brand { display: flex; align-items: center; gap: 4px; text-decoration: none; }
+    .footer-brand span.s { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: white; }
+    .footer-brand span.q { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--green); }
+    footer> p { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
+    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { color: rgba(255,255,255,0.5); font-size: 0.82rem; text-decoration: none; transition: color .2s; }
+    .footer-links a:hover { color: var(--green); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 14px 24px; }
+      .nav-links { display: none; }
+
+      .hero { flex-direction: column; padding: 100px 24px 60px; text-align: center; gap: 48px; }
+      .hero p { margin: 0 auto 36px; }
+      .hero-actions { justify-content: center; }
+      /* FIX 15: word cycle on mobile — reduce min-width so it doesn't overflow */
+      .word-cycle-wrap { min-width: 180px; }
+
+      section { padding: 72px 24px; }
+
+      .app-section { flex-direction: column; padding: 72px 24px; gap: 48px; }
+      .phones-visual { min-height: 280px; }
+      .phone { width: 160px; height: 290px; }
+      .phone-accent { right: -30px; bottom: -20px; width: 160px; height: 290px; }
+
+      .contact-cards { flex-direction: column; align-items: center; }
+      .contact-card { width: 100%; max-width: 360px; }
+
+      footer { flex-direction: column; align-items: flex-start; padding: 36px 24px; }
+
+      /* Responsive orbit — smaller radius on mobile */
+      .orbit-scene { width: 280px; height: 280px; }
+      .orbit-ring-1 { width: 160px; height: 160px; }
+      .orbit-ring-2 { width: 230px; height: 230px; }
+      .orbit-ring-3 { width: 280px; height: 280px; }
+      .coin-btc,.coin-eth { animation: orbit1-sm 8s linear infinite; }
+      .coin-sol,.coin-bnb { animation: orbit2-sm 12s linear infinite; }
+      .coin-ada,.coin-trx { animation: orbit3-sm 16s linear infinite; }
+    }
+
+    @keyframes orbit1-sm {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(80px)  rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(80px)  rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit2-sm {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(115px) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(115px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit3-sm {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(140px) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(140px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+
+    /* FIX 16: Respect reduced-motion system setting — disable all animations */
+    @media (prefers-reduced-motion: reduce) {
+      .coin, .spin-icon, .phone-main, .ticker-track,
+      .word-cycle-wrap .word { animation: none !important; transition: none !important; }
+      .word-cycle-wrap .word.active { opacity: 1; transform: none; }
+      .word-cycle-wrap .word:not(.active) { display: none; }
+    }
+
+
+    /* Phone screen element styles (moved from inline) */
+    .ph-label    { font-size: 0.55rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
+    .ph-title    { font-size: 0.8rem; font-weight: 700; color: #39E000; }
+    .ph-live     { font-size: 0.55rem; color: rgba(255,255,255,0.4); }
+    .ph-val      { font-size: 0.75rem; font-weight: 700; color: white; }
+    .ph-val-rcv  { font-size: 0.75rem; font-weight: 700; color: #39E000; }
+    .ph-arrows   { text-align: center; margin: 4px 0; font-size: 1rem; color: rgba(255,255,255,0.5); }
+    .ph-rate     { font-size: 0.5rem; color: rgba(255,255,255,0.3); text-align: center; }
+    /* Coin icon background colors (moved from inline styles) */
+    .coin-icon.ci-btc  { background: #FEF3E2; }
+    .coin-icon.ci-eth  { background: #EEF0FC; }
+    .coin-icon.ci-sol  { background: #F4EEFF; }
+    .coin-icon.ci-bnb  { background: #FFFBE6; }
+    .coin-icon.ci-ada  { background: #E8F8FF; }
+    .coin-icon.ci-trx  { background: #FEE8EC; }
+    .coin-icon.ci-usdt { background: #E8F5F0; }
+    .coin-icon.ci-ltc  { background: #F0F4FF; }
+
+    /* Badge dot colors */
+    .badge-dot-btc { background: #F7931A; }
+    .badge-dot-sol { background: #9945FF; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav aria-label="Main navigation">
+  <a class="nav-logo" href="#">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+      <circle cx="16" cy="16" r="14" stroke="#39E000" stroke-width="2.5"/>
+      <path d="M10 19l6-6 6 6" stroke="#1B2A4A" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M22 13l-6 6-6-6" stroke="#39E000" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+    </svg>
+    <span class="swap">Swap</span><span class="q">Q</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how-it-works">How It Works</a></li>
+    <li><a href="#coins">Supported Coins</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">Start Swapping</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-eyebrow"> Swap Quickly</div>
+    <h1>
+      Exchange Crypto<br>
+      <span class="sr-only" id="cycleLabel" aria-live="polite" aria-atomic="true">Fast &amp; Easy</span><span class="word-cycle-wrap" id="wordCycle" aria-hidden="true">
+        <span class="word active">Fast &amp; Easy</span>
+        <span class="word">Safe &amp; Secure</span>
+        <span class="word">Quick &amp; Simple</span>
+        <span class="word">Seamless</span>
+      </span><br>
+      Transactions
+    </h1>
+    <p>SwapQ lets you instantly swap Bitcoin, Solana, BNB, Ethereum, and more — across blockchains, with zero stress. Your rate. Your speed. Your swap.</p>
+    <div class="hero-actions">
+      <a href="#contact" class="btn-primary">Swap Now via WhatsApp</a>
+      <a href="#how-it-works" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+
+  <div class="hero-visual" aria-hidden="true">
+    <div class="orbit-scene">
+      <div class="orbit-ring orbit-ring-1"></div>
+      <div class="orbit-ring orbit-ring-2"></div>
+      <div class="orbit-ring orbit-ring-3"></div>
+      <div class="orbit-center">
+        <svg class="spin-icon" viewBox="0 0 36 36" fill="none">
+          <path d="M6 18C6 11.373 11.373 6 18 6a12 12 0 0 1 9.6 4.8" stroke="#39E000" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M30 18c0 6.627-5.373 12-12 12A12 12 0 0 1 8.4 25.2" stroke="#39E000" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M25.5 5l4 5.5-5.5.5" fill="#39E000"/>
+          <path d="M10 31l-4-5.5 5.5-.5" fill="#39E000"/>
+        </svg>
+      </div>
+      <div class="coin coin-btc">₿<br>BTC</div>
+      <div class="coin coin-eth">Ξ<br>ETH</div>
+      <div class="coin coin-sol">◎<br>SOL</div>
+      <div class="coin coin-bnb">⬡<br>BNB</div>
+      <div class="coin coin-ada">₳<br>ADA</div>
+      <div class="coin coin-trx">T<br>TRX</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-bar" aria-hidden="true">
+  <div class="ticker-track">
+    <div class="ticker-item"><span class="dot"></span>Bitcoin (BTC)</div>
+    <div class="ticker-item"><span class="dot"></span>Ethereum (ETH)</div>
+    <div class="ticker-item"><span class="dot"></span>Solana (SOL)</div>
+    <div class="ticker-item"><span class="dot"></span>BNB (BNB)</div>
+    <div class="ticker-item"><span class="dot"></span>Cardano (ADA)</div>
+    <div class="ticker-item"><span class="dot"></span>TRON (TRX)</div>
+    <div class="ticker-item"><span class="dot"></span>Litecoin (LTC)</div>
+    <div class="ticker-item"><span class="dot"></span>USDT (TRC20)</div>
+    <!-- duplicate for seamless loop -->
+    <div class="ticker-item"><span class="dot"></span>Bitcoin (BTC)</div>
+    <div class="ticker-item"><span class="dot"></span>Ethereum (ETH)</div>
+    <div class="ticker-item"><span class="dot"></span>Solana (SOL)</div>
+    <div class="ticker-item"><span class="dot"></span>BNB (BNB)</div>
+    <div class="ticker-item"><span class="dot"></span>Cardano (ADA)</div>
+    <div class="ticker-item"><span class="dot"></span>TRON (TRX)</div>
+    <div class="ticker-item"><span class="dot"></span>Litecoin (LTC)</div>
+    <div class="ticker-item"><span class="dot"></span>USDT (TRC20)</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how-it-works">
+  <div class="how-inner">
+    <div class="how-header">
+      <div class="section-label">The Process</div>
+      <h2 class="section-title">Swap in 4 Simple Steps</h2>
+      <p class="section-sub">No complicated apps, no long forms. SwapQ gets you from "I want to swap" to "done" in minutes.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24"><path d="M8 12h8M12 8l4 4-4 4"/></svg>
+        </div>
+        <h3>Tell Us What You Want</h3>
+        <p>Contact us via WhatsApp or email. Tell us which coin you're sending and which one you want in return.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
+        </div>
+        <h3>Get a Quote &amp; Confirm</h3>
+        <p>We send you the exact rate and wallet address. You confirm the swap — no hidden fees, no surprises.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </div>
+        <h3>Send &amp; Receive Fast</h3>
+        <p>Send your crypto to the provided address. Once confirmed on chain, we send your swapped coin right away.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon">
+          <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+        </div>
+        <h3>You're Done ✓</h3>
+        <p>Crypto lands in your wallet. Fast, clean, no stress. Come back whenever you need to swap again.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COINS WE SUPPORT -->
+<section class="coins-section" id="coins">
+  <div class="coins-inner">
+    <div class="coins-header">
+      <div class="section-label">Supported Assets</div>
+      <h2 class="section-title">Coins We Swap</h2>
+      <p class="section-sub">We support major cryptocurrencies across their native blockchains — with more being added regularly.</p>
+    </div>
+    <div class="coins-grid">
+      <div class="coin-card"><div class="coin-icon ci-btc">₿</div><h4>Bitcoin</h4><span>BTC</span></div>
+      <div class="coin-card"><div class="coin-icon ci-eth">Ξ</div><h4>Ethereum</h4><span>ETH</span></div>
+      <div class="coin-card"><div class="coin-icon ci-sol">◎</div><h4>Solana</h4><span>SOL</span></div>
+      <div class="coin-card"><div class="coin-icon ci-bnb">⬡</div><h4>BNB</h4><span>BNB Chain</span></div>
+      <div class="coin-card"><div class="coin-icon ci-ada">₳</div><h4>Cardano</h4><span>ADA</span></div>
+      <div class="coin-card"><div class="coin-icon ci-trx">T</div><h4>TRON</h4><span>TRX</span></div>
+      <div class="coin-card"><div class="coin-icon ci-usdt">$</div><h4>USDT</h4><span>TRC20 / ERC20</span></div>
+      <div class="coin-card"><div class="coin-icon ci-ltc">Ł</div><h4>Litecoin</h4><span>LTC</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- PHONE / APP SECTION -->
+<section class="app-section">
+  <div class="app-text">
+    <div class="section-label">Experience</div>
+    <h2 class="section-title">Swapping From<br>Your Phone</h2>
+    <p class="section-sub">Our full app is coming soon. Until then, our WhatsApp support line handles every swap personally — fast response, real humans, zero bots.</p>
+    <ul class="feature-list">
+      <li>Fast quotes via WhatsApp — usually within minutes</li>
+      <li>Real-time swap tracking via blockchain confirmation</li>
+      <li>Support for all major coins across native blockchains</li>
+      <li>P2P swaps handled securely with verified wallets</li>
+      <li>Full app launching soon — join the waitlist</li>
+    </ul>
+    <div class="store-buttons">
+      <!-- Google Play -->
+      <a href="#" class="store-btn" aria-label="Get it on Google Play">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M3.18 1.42C2.76 1.65 2.5 2.1 2.5 2.65v18.7c0 .55.26 1 .68 1.23l.1.06 10.48-10.48v-.24L3.28 1.36l-.1.06z" fill="#EA4335"/>
+          <path d="M17.1 15.52l-3.49-3.49v-.24l3.49-3.49.08.04 4.14 2.35c1.18.67 1.18 1.77 0 2.44l-4.14 2.35-.08.04z" fill="#FBBC04"/>
+          <path d="M17.18 15.48L13.61 12 3.18 22.42c.39.41 1.03.46 1.74.05l12.26-6.99" fill="#34A853"/>
+          <path d="M17.18 8.52L4.92 1.53C4.21 1.12 3.57 1.17 3.18 1.58L13.61 12l3.57-3.48z" fill="#EA4335"/>
+        </svg>
+        <div class="store-btn-text">
+          <small>GET IT ON</small>
+          <strong>Google Play</strong>
+        </div>
+      </a>
+      <!-- App Store -->
+      <a href="#" class="store-btn" aria-label="Download on the App Store">
+        <svg viewBox="0 0 24 24" fill="white" aria-hidden="true">
+          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.37-2.16 3.81.03 2.93 2.56 3.91 2.59 3.92l-.18.89zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+        </svg>
+        <div class="store-btn-text">
+          <small>Download on the</small>
+          <strong>App Store</strong>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="phones-visual" aria-hidden="true">
+    <div class="phone-accent"></div>
+    <div class="phone phone-main">
+      <div class="phone-screen-content">
+        <div class="phone-row">
+          <span class="ph-title">SwapQ</span>
+          <span class="ph-live">● LIVE</span>
+        </div>
+        <p class="ph-label">You Send</p>
+        <div class="phone-input">
+          <div class="phone-coin-badge">
+            <div class="badge-dot badge-dot-btc"></div>BTC
+          </div>
+          <span class="ph-val">0.05</span>
+        </div>
+        <div class="ph-arrows">⇅</div>
+        <p class="ph-label">You Receive</p>
+        <div class="phone-input">
+          <div class="phone-coin-badge">
+            <div class="badge-dot badge-dot-sol"></div>SOL
+          </div>
+          <span class="ph-val-rcv">≈ 8.32</span>
+        </div>
+        <div class="ph-rate">Rate: 1 BTC ≈ 166.4 SOL</div>
+        <div class="phone-swap-btn">⚡ Swap Quickly</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section" id="contact">
+  <div class="contact-inner">
+    <div class="section-label">Get in Touch</div>
+    <h2 class="section-title">Ready to Swap?</h2>
+    <p>Reach out directly. We respond fast. Whether you have a question, need a quote, or are ready to swap — our team is standing by.</p>
+    <div class="contact-cards">
+      <a href="mailto:support@swapquickly.com" class="contact-card">
+        <div class="cc-icon cc-email">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#1B2A4A" stroke-width="1.8"/>
+            <path d="M2 7l10 7 10-7" stroke="#1B2A4A" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <h3>Email Support</h3>
+        <p>support@swapquickly.com<br>We reply within a few hours</p>
+      </a>
+      <a href="https://wa.me/2348000000000" class="contact-card" target="_blank" rel="noopener noreferrer">
+        <div class="cc-icon cc-whatsapp">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.89.52 3.66 1.43 5.18L2 22l4.95-1.4A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-1.2 5.5c-.3-.7-.6-.72-.87-.73l-.74-.01c-.26 0-.67.1-1.02.48-.35.39-1.34 1.31-1.34 3.18 0 1.88 1.37 3.69 1.56 3.95.19.26 2.65 4.23 6.53 5.76 3.22 1.27 3.88 1.02 4.58.95.7-.06 2.26-.92 2.58-1.82.32-.89.32-1.66.22-1.82-.1-.16-.36-.26-.76-.45-.39-.2-2.29-1.13-2.64-1.26-.36-.13-.62-.19-.88.2-.26.39-1 1.26-1.23 1.52-.22.26-.45.29-.84.1-.39-.2-1.65-.61-3.14-1.94-1.16-1.04-1.94-2.32-2.17-2.71-.22-.39-.02-.6.17-.79.17-.17.39-.45.58-.68.2-.22.26-.39.39-.65.13-.26.06-.49-.03-.68z" fill="#25D366"/>
+          </svg>
+        </div>
+        <h3>WhatsApp Us</h3>
+        <p>Chat directly on WhatsApp<br>Fastest way to get a quote</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div class="faq-header">
+      <div class="section-label">Questions</div>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        How do I swap my crypto on SwapQ?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>It's simple: contact us on WhatsApp or email, tell us which coin you're sending and what you want back, confirm the quote and wallet we give you, then send your crypto. Once the blockchain confirms your transaction, we send your swapped coins immediately.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        How long does it take to complete a swap?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>Most swaps complete within 15–45 minutes. This depends on blockchain confirmation time for the coin you're sending. Bitcoin typically takes longer (3–6 confirmations), while Solana, TRON, and BNB are usually much faster.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        Is SwapQ a P2P exchange?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>Yes, SwapQ operates as a P2P (peer-to-peer) exchange. This means you're swapping directly with us — no third-party intermediary, no automated liquidity pool. We handle the swap personally, which allows for faster resolution and human support on every transaction.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        What coins and blockchains do you support?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>We support Bitcoin (BTC), Ethereum (ETH), Solana (SOL), BNB (BNB Chain), Cardano (ADA), TRON (TRX), Litecoin (LTC), and USDT on both TRC20 and ERC20 networks. More assets are being added — ask us if yours isn't listed.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        Are there any fees?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>We charge a small service fee that's already baked into the rate we quote you. There are no surprise charges. The rate you see is the rate you get. The only additional cost is the standard blockchain transaction fee (network fee) for sending your coins.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        Is it safe to swap with SwapQ?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>We operate transparently and personally. Every swap is handled by our team, not an algorithm. We provide a wallet address verified for each transaction, and we only release your coins after confirming receipt on the blockchain. We recommend starting with a smaller test swap if it's your first time.</p></div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
+        What if there's a problem with my swap?
+        <span class="arrow" aria-hidden="true">▾</span>
+      </button>
+      <div class="faq-a"><p>Reach out immediately via WhatsApp or email. Since every swap involves a real person on our end, issues are resolved quickly. Blockchain transactions are irreversible, so double-check wallet addresses before sending — our support team is always available to help troubleshoot.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-brand" href="#">
+    <span class="s">Swap</span><span class="q">Q</span>
+  </a>
+  <p>&copy; 2025 SwapQ &middot; Swap Quickly &middot; All rights reserved</p>
+  <nav class="footer-links" aria-label="Footer navigation">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#coins">Coins</a>
+    <a href="#contact">Contact</a>
+    <a href="#faq">FAQ</a>
+    <a href="mailto:support@swapquickly.com">Email</a>
+  </nav>
+</footer>
+
+<script>
+  /* ── WORD CYCLING ── */
+  (function () {
+    var wrap = document.getElementById('wordCycle');
+    if (!wrap) return;
+    // FIX 17: check for prefers-reduced-motion before running JS animation too
+    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    var words = wrap.querySelectorAll('.word');
+    var current = 0;
+
+    setInterval(function () {
+      words[current].classList.remove('active');
+      words[current].classList.add('exit');
+      var prev = current;
+      current = (current + 1) % words.length;
+      words[current].classList.add('active');
+      // Update screen reader live region
+      var label = document.getElementById('cycleLabel');
+      if (label) label.textContent = words[current].textContent;
+      setTimeout(function () {
+        words[prev].classList.remove('exit');
+      }, 500);
+    }, 2400);
+  })();
+
+  /* ── FAQ ACCORDION ── */
+  // FIX 18: was using arrow function — replaced with regular function for max browser compatibility
+  function toggleFAQ(btn) {
+    var item = btn.closest('.faq-item');
+    var isOpen = item.classList.contains('open');
+    var allItems = document.querySelectorAll('.faq-item.open');
+    for (var i = 0; i < allItems.length; i++) {
+      allItems[i].classList.remove('open');
+    }
+    if (!isOpen) item.classList.add('open');
+  }
+
+  /* ── SMOOTH SCROLL ── */
+  // FIX 19: wrapped in DOMContentLoaded so it's safe regardless of script placement
+  document.addEventListener('DOMContentLoaded', function () {
+    var anchors = document.querySelectorAll('a[href^="#"]');
+    for (var i = 0; i < anchors.length; i++) {
+      anchors[i].addEventListener('click', function (e) {
+        var href = this.getAttribute('href');
+        if (href === '#') return; // skip home anchor
+        var target = document.querySelector(href);
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>
