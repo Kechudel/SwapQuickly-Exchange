@@ -37,7 +37,7 @@
       --dark:     #0D1A2E;
     }
 
-    html { scroll-behavior: smooth; }
+    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
 
     /*
       FIX 2: System font stack as fallback so layout never breaks
@@ -110,8 +110,8 @@
     }
     .hero h1 {
       font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
-      font-weight: 700; line-height: 1.15;
+      font-size: clamp(1.9rem, 7vw, 3.8rem);
+      font-weight: 700; line-height: 1.1;
       color: var(--white);
       margin-bottom: 20px;
     }
@@ -123,23 +123,24 @@
       so layout doesn't jump between words of different lengths.
     */
     .word-cycle-wrap {
-      display: inline-block;
+      display: block;
       position: relative;
-      height: 52px;
+      height: 1.15em;
       overflow: hidden;
-      vertical-align: middle;
-      min-width: 240px;
+      width: 100%;
+      margin-bottom: 0;
     }
     .word-cycle-wrap .word {
       display: block;
       position: absolute;
       left: 0; top: 0;
+      width: 100%;
       color: var(--green);
       opacity: 0;
       transform: translateY(40px);
       transition: opacity 0.45s ease, transform 0.45s ease;
       white-space: nowrap;
-      line-height: 1.15;
+      line-height: 1.2;
     }
     .word-cycle-wrap .word.active {
       opacity: 1;
@@ -483,7 +484,7 @@
     /* ── FAQ ── */
     .faq-section { background: white; }
     .faq-inner { max-width: 760px; margin: 0 auto; }
-    .faq-header { text-align: center; margin-bottom: 56px;}
+    .faq-header { text-align: center; margin-bottom: 56px; }
     .faq-item { border-bottom: 1px solid rgba(27,42,74,0.1); }
     .faq-item:first-of-type { border-top: 1px solid rgba(27,42,74,0.1); }
     .faq-q {
@@ -526,14 +527,15 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 900px) {
-      nav { padding: 14px 24px; }
+      nav { padding: 12px 20px; min-height: unset; }
       .nav-links { display: none; }
 
-      .hero { flex-direction: column; padding: 100px 24px 60px; text-align: center; gap: 48px; }
+      .hero { flex-direction: column; padding: 88px 24px 60px; text-align: center; gap: 36px; }
       .hero p { margin: 0 auto 36px; }
       .hero-actions { justify-content: center; }
-      /* FIX 15: word cycle on mobile — reduce min-width so it doesn't overflow */
-      .word-cycle-wrap { min-width: 180px; }
+      /* Word cycle on mobile — full width, allow wrapping */
+      .word-cycle-wrap { width: 100%; }
+      .word-cycle-wrap .word { white-space: normal; }
 
       section { padding: 72px 24px; }
 
@@ -634,8 +636,7 @@
         <span class="word">Safe &amp; Secure</span>
         <span class="word">Quick &amp; Simple</span>
         <span class="word">Seamless</span>
-      </span><br>
-      Transactions
+      </span><br>Transactions
     </h1>
     <p>SwapQ lets you instantly swap Bitcoin, Solana, BNB, Ethereum, and more — across blockchains, with zero stress. Your rate. Your speed. Your swap.</p>
     <div class="hero-actions">
@@ -735,6 +736,7 @@
   </div>
 </section>
 
+  
 <!-- COINS WE SUPPORT -->
 <section class="coins-section" id="coins">
   <div class="coins-inner">
@@ -820,7 +822,7 @@
           <span class="ph-val-rcv">≈ 8.32</span>
         </div>
         <div class="ph-rate">Rate: 1 BTC ≈ 166.4 SOL</div>
-        <div class="phone-swap-btn">⚡ Swap Quickly</div>
+        <div class="phone-swap-btn"> Swap Quickly</div>
       </div>
     </div>
   </div>
@@ -935,19 +937,41 @@
     <a href="#faq">FAQ</a>
     <a href="mailto:support@swapquickly.com">Email</a>
   </nav>
-</footer>
+  </footer>
 
-<script>
+  <script>
+  /* ── HAMBURGER MENU ── */
+  var burger = document.getElementById('burgerBtn');
+  var drawer = document.getElementById('navDrawer');
+
+  burger.addEventListener('click', function () {
+    var isOpen = drawer.classList.toggle('open');
+    burger.setAttribute('aria-expanded', isOpen);
+  });
+
+  // Close drawer when any drawer link is clicked
+  drawer.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      drawer.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
+    });
+  });
+
   /* ── WORD CYCLING ── */
   (function () {
     var wrap = document.getElementById('wordCycle');
     if (!wrap) return;
-    // FIX 17: check for prefers-reduced-motion before running JS animation too
-    var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     var words = wrap.querySelectorAll('.word');
     var current = 0;
+
+    function setHeight() {
+      var active = wrap.querySelector('.word.active');
+      if (active) wrap.style.height = active.offsetHeight + 'px';
+    }
+    setHeight();
+    window.addEventListener('resize', setHeight);
 
     setInterval(function () {
       words[current].classList.remove('active');
@@ -955,43 +979,32 @@
       var prev = current;
       current = (current + 1) % words.length;
       words[current].classList.add('active');
-      // Update screen reader live region
       var label = document.getElementById('cycleLabel');
       if (label) label.textContent = words[current].textContent;
-      setTimeout(function () {
-        words[prev].classList.remove('exit');
-      }, 500);
+      setTimeout(function () { words[prev].classList.remove('exit'); }, 500);
     }, 2400);
   })();
 
-  /* ── FAQ ACCORDION ── */
-  // FIX 18: was using arrow function — replaced with regular function for max browser compatibility
+  /* ── FAQ ── */
   function toggleFAQ(btn) {
     var item = btn.closest('.faq-item');
     var isOpen = item.classList.contains('open');
-    var allItems = document.querySelectorAll('.faq-item.open');
-    for (var i = 0; i < allItems.length; i++) {
-      allItems[i].classList.remove('open');
-    }
+    document.querySelectorAll('.faq-item.open').forEach(function (el) { el.classList.remove('open'); });
     if (!isOpen) item.classList.add('open');
   }
 
   /* ── SMOOTH SCROLL ── */
-  // FIX 19: wrapped in DOMContentLoaded so it's safe regardless of script placement
   document.addEventListener('DOMContentLoaded', function () {
-    var anchors = document.querySelectorAll('a[href^="#"]');
-    for (var i = 0; i < anchors.length; i++) {
-      anchors[i].addEventListener('click', function (e) {
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
         var href = this.getAttribute('href');
-        if (href === '#') return; // skip home anchor
+        if (href === '#') return;
         var target = document.querySelector(href);
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
-    }
+    });
   });
 </script>
 </body>
 </html>
+  
