@@ -3,31 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="SwapQ — Swap crypto fast, easy and securely. Bitcoin, Ethereum, Solana, BNB and more. P2P exchange with real human support.">
+  <meta name="description" content="SwapQ — Swap crypto fast, easy and securely. Bitcoin, Ethereum, Solana, USDT and more. P2P exchange with real human support.">
   <title>SwapQ — Swap Quickly</title>
-
-  
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-
-header, .site-header, .navbar {
-  position: relative;
-  z-index: 10;
-}
-
-    /* Screen reader only utility */
+    /* ── SR ONLY ── */
     .sr-only {
       position: absolute; width: 1px; height: 1px;
       padding: 0; margin: -1px; overflow: hidden;
       clip: rect(0,0,0,0); white-space: nowrap; border: 0;
     }
+
     /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* ── TOKENS ── */
+    /* ── DESIGN TOKENS ── */
     :root {
       --navy:     #1B2A4A;
       --green:    #39E000;
@@ -36,573 +29,803 @@ header, .site-header, .navbar {
       --offwhite: #F4F8F4;
       --gray:     #6B7280;
       --dark:     #0D1A2E;
+      --nav-h:    64px;
     }
 
-    html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: var(--nav-h);
+    }
 
-    /*
-      FIX 2: System font stack as fallback so layout never breaks
-      if Google Fonts fails to load (offline, blocked, etc.)
-    */
     body {
       font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
                    'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
       background: var(--white);
       color: var(--navy);
       overflow-x: hidden;
-      /* FIX 3: Prevent iOS font size auto-adjustment */
       -webkit-text-size-adjust: 100%;
       text-size-adjust: 100%;
     }
 
-    /* ── NAV ── */
+    /* ══════════════════════════════════════
+       NAV
+    ══════════════════════════════════════ */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      height: var(--nav-h);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 48px;
-      background: rgba(255,255,255,0.95);
-      /* FIX 4: -webkit- prefix for Safari support */
-      -webkit-backdrop-filter: blur(10px);
-      backdrop-filter: blur(10px);
+      padding: 0 48px;
+      /* FIX: fully opaque white as the safe default. backdrop-filter
+         blur is a progressive enhancement layered on top via the
+         @supports rule below — some Android WebView/Chrome builds
+         render an unsupported backdrop-filter as fully transparent,
+         which made the entire nav (logo, links, button) invisible
+         even though the markup was correct. */
+      background: #FFFFFF;
       border-bottom: 1px solid rgba(27,42,74,0.08);
     }
-    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-logo span.swap { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--navy); }
-    .nav-logo span.q    { font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700; color: var(--green); }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a { text-decoration: none; color: var(--navy); font-weight: 500; font-size: 0.95rem; transition: color .2s; }
+    @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+      nav {
+        background: rgba(255,255,255,0.97);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
+      }
+    }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .nav-logo svg { width: 32px; height: 32px; flex-shrink: 0; }
+    .nav-logo span.swap,
+    .nav-logo span.q {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      font-size: 1.55rem; font-weight: 700; line-height: 1;
+    }
+    .nav-logo span.swap { color: var(--navy); }
+    .nav-logo span.q    { color: var(--green); }
+
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      text-decoration: none; color: var(--navy);
+      font-weight: 500; font-size: 0.92rem;
+      transition: color .2s;
+    }
     .nav-links a:hover { color: var(--green2); }
+
     .nav-cta {
       background: var(--green); color: var(--navy);
-      border: none; padding: 10px 24px; border-radius: 6px;
-      font-weight: 700; font-size: 0.9rem; cursor: pointer;
-      text-decoration: none; transition: background .2s, transform .15s;
-      /* FIX 5: display:inline-flex so it renders correctly as an <a> tag */
+      border: none; padding: 9px 22px; border-radius: 6px;
+      font-weight: 700; font-size: 0.88rem; cursor: pointer;
+      text-decoration: none;
       display: inline-flex; align-items: center;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
     }
     .nav-cta:hover { background: var(--green2); transform: translateY(-1px); }
 
-    /* ── HERO ── */
+    /* Hamburger (mobile only) */
+    .nav-burger {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-burger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--navy); border-radius: 2px;
+      transition: transform .25s, opacity .25s;
+    }
+
+    /* Mobile drawer */
+    .nav-drawer {
+      display: none;
+      position: fixed; top: var(--nav-h); left: 0; right: 0;
+      background: white;
+      border-bottom: 1px solid rgba(27,42,74,0.1);
+      padding: 16px 24px 24px;
+      z-index: 199;
+      flex-direction: column; gap: 0;
+    }
+    .nav-drawer.open { display: flex; }
+    .nav-drawer a {
+      display: block; padding: 14px 0;
+      border-bottom: 1px solid rgba(27,42,74,0.06);
+      font-weight: 600; font-size: 1rem;
+      text-decoration: none; color: var(--navy);
+    }
+    .nav-drawer a:hover { color: var(--green2); }
+    .nav-drawer .drawer-cta {
+      margin-top: 16px;
+      background: var(--green); color: var(--navy);
+      text-align: center; border-radius: 8px; padding: 14px;
+      font-weight: 700; font-size: 1rem;
+      border-bottom: none;
+    }
+
+    /* ══════════════════════════════════════
+       HERO
+    ══════════════════════════════════════ */
     .hero {
       min-height: 100vh;
       background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 60%, #1e3a5f 100%);
       display: flex; align-items: center;
-      padding: 120px 48px 80px;
-      gap: 60px;
+      padding: calc(var(--nav-h) + 56px) 6% 72px;
+      gap: 5%;
       position: relative; overflow: hidden;
     }
     .hero::before {
       content: '';
       position: absolute; top: -100px; right: -100px;
       width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(57,224,0,0.12) 0%, transparent 70%);
-      border-radius: 50%;
-      /* FIX 6: pointer-events:none so it never blocks clicks */
-      pointer-events: none;
+      background: radial-gradient(circle, rgba(57,224,0,0.1) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
     }
-    .hero-text { flex: 1; max-width: 560px; z-index: 1; }
+
+    .hero-text { flex: 1; max-width: 580px; z-index: 1; min-width: 0; }
+
     .hero-eyebrow {
       display: inline-block;
       background: rgba(57,224,0,0.15); color: var(--green);
       border: 1px solid rgba(57,224,0,0.3);
-      border-radius: 4px; padding: 4px 12px;
-      font-size: 0.78rem; font-weight: 600; letter-spacing: .08em;
-      text-transform: uppercase; margin-bottom: 20px;
+      border-radius: 4px; padding: 4px 14px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; margin-bottom: 18px;
     }
+
     .hero h1 {
       font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-      font-size: clamp(1.9rem, 7vw, 3.8rem);
+      font-size: clamp(2rem, 4.5vw, 3.8rem);
       font-weight: 700; line-height: 1.1;
       color: var(--white);
       margin-bottom: 20px;
     }
 
-    /* ── WORD CYCLE ANIMATION ── */
-    /*
-      FIX 7: Changed height from em-based to px-based so it doesn't
-      collapse when Rajdhani hasn't loaded yet. Also added min-width
-      so layout doesn't jump between words of different lengths.
-    */
+    /* ── WORD CYCLE ── */
     .word-cycle-wrap {
       display: block;
       position: relative;
       height: 1.15em;
       overflow: hidden;
       width: 100%;
-      margin-bottom: 0;
     }
     .word-cycle-wrap .word {
       display: block;
-      position: absolute;
-      left: 0; top: 0;
+      position: absolute; left: 0; top: 0;
       width: 100%;
       color: var(--green);
       opacity: 0;
-      transform: translateY(40px);
-      transition: opacity 0.45s ease, transform 0.45s ease;
+      transform: translateY(36px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      line-height: 1.15;
       white-space: nowrap;
-      line-height: 1.2;
     }
-    .word-cycle-wrap .word.active {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .word-cycle-wrap .word.exit {
-      opacity: 0;
-      transform: translateY(-40px);
-    }
+    .word-cycle-wrap .word.active  { opacity: 1; transform: translateY(0); }
+    .word-cycle-wrap .word.exit    { opacity: 0; transform: translateY(-36px); }
 
     .hero p {
-      font-size: 1.05rem; color: rgba(255,255,255,0.72);
-      line-height: 1.7; margin-bottom: 36px; max-width: 460px;
+      font-size: clamp(0.92rem, 2vw, 1.05rem);
+      color: rgba(255,255,255,0.72);
+      line-height: 1.72; margin-bottom: 32px;
+      max-width: 480px;
     }
-    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
     .btn-primary {
       background: var(--green); color: var(--navy);
-      padding: 14px 32px; border-radius: 7px;
-      font-weight: 700; font-size: 1rem;
+      padding: 13px 28px; border-radius: 7px;
+      font-weight: 700; font-size: clamp(0.88rem, 2vw, 1rem);
       text-decoration: none; display: inline-block;
       transition: background .2s, transform .15s;
+      white-space: nowrap;
     }
     .btn-primary:hover { background: var(--green2); transform: translateY(-2px); }
+
     .btn-secondary {
       background: transparent; color: var(--white);
-      padding: 14px 32px; border-radius: 7px;
+      padding: 13px 28px; border-radius: 7px;
       border: 1.5px solid rgba(255,255,255,0.3);
-      font-weight: 600; font-size: 1rem;
+      font-weight: 600; font-size: clamp(0.88rem, 2vw, 1rem);
       text-decoration: none; display: inline-block;
       transition: border-color .2s, background .2s;
+      white-space: nowrap;
     }
     .btn-secondary:hover { border-color: var(--green); background: rgba(57,224,0,0.07); }
 
     /* ── ORBIT ── */
     .hero-visual {
-      flex: 1; display: flex; justify-content: center;
-      align-items: center; min-height: 420px; z-index: 1;
+      flex: 1; display: flex; justify-content: center; align-items: center;
+      z-index: 1; min-width: 0;
     }
-    .orbit-scene { position: relative; width: 360px; height: 360px; flex-shrink: 0; }
+    .orbit-scene {
+      position: relative;
+      width: clamp(260px, 35vw, 380px);
+      height: clamp(260px, 35vw, 380px);
+      flex-shrink: 0;
+    }
     .orbit-ring {
       position: absolute; top: 50%; left: 50%;
-      border-radius: 50%; border: 2px dashed rgba(57,224,0,0.25);
+      border-radius: 50%; border: 2px dashed rgba(57,224,0,0.22);
       transform: translate(-50%, -50%);
       pointer-events: none;
     }
-    .orbit-ring-1 { width: 200px; height: 200px; }
-    .orbit-ring-2 { width: 300px; height: 300px; }
-    .orbit-ring-3 { width: 360px; height: 360px; }
+    /* 7 evenly graduated rings — one coin per ring, no overlap */
+    .orbit-ring-1 { width: 34%;  height: 34%; }
+    .orbit-ring-2 { width: 46%;  height: 46%; }
+    .orbit-ring-3 { width: 58%;  height: 58%; }
+    .orbit-ring-4 { width: 70%;  height: 70%; }
+    .orbit-ring-5 { width: 82%;  height: 82%; }
+    .orbit-ring-6 { width: 94%;  height: 94%; }
 
     .orbit-center {
       position: absolute; top: 50%; left: 50%;
-      width: 80px; height: 80px;
+      width: 20%; height: 20%;
       transform: translate(-50%, -50%);
       background: linear-gradient(135deg, #1e3a5f, var(--navy));
       border-radius: 50%; border: 3px solid var(--green);
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 0 30px rgba(57,224,0,0.4);
       animation: pulse-glow 3s ease-in-out infinite;
-      /* FIX 8: z-index so center is above rings */
       z-index: 2;
     }
-    .orbit-center svg { width: 36px; height: 36px; }
+    .orbit-center svg { width: 55%; height: 55%; }
 
     .coin {
       position: absolute; top: 50%; left: 50%;
-      width: 52px; height: 52px;
+      width: 13%; height: 13%;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-size: 0.65rem; font-weight: 700; color: white;
+      font-size: clamp(0.45rem, 1.2vw, 0.7rem); font-weight: 700; color: white;
       text-align: center; line-height: 1.2;
       box-shadow: 0 4px 16px rgba(0,0,0,0.35);
-      /* FIX 9: will-change for GPU compositing on orbit animations */
-      will-change: transform;
-      z-index: 3;
+      will-change: transform; z-index: 3;
+      /* FIX: static fallback centering transform so coins are
+         correctly centered even before/without the orbit animation
+         (e.g. prefers-reduced-motion, slow paint). Without this,
+         the browser has no transform at all on first paint and the
+         coins cascade diagonally based on render order. */
+      transform: translate(-50%, -50%);
     }
-    .coin-btc { background: linear-gradient(135deg, #F7931A, #E8851A); }
-    .coin-sol { background: linear-gradient(135deg, #9945FF, #7B3FE4); }
-    .coin-bnb { background: linear-gradient(135deg, #F3BA2F, #D4A429); }
-    .coin-eth { background: linear-gradient(135deg, #627EEA, #4B6CD4); }
-    .coin-ada { background: linear-gradient(135deg, #0D1E2E, #1a3a5c); border: 1.5px solid #3CCBDA; }
-    .coin-trx { background: linear-gradient(135deg, #EF0027, #CC0022); }
+    /* Each coin SVG draws its own full circular badge — no outer bg/padding needed */
+    .coin svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
 
+    /* Orbit uses percentage-based translateX so scales with scene size */
+    /* FIX: translateX(%) resolves against the COIN's own size, not the
+       scene — so each ring gets its own keyframe with a clamp()-based
+       px radius matching that ring's exact percentage of the scene. */
     @keyframes orbit1 {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(100px) rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(100px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(44px, 5.95vw, 65px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(44px, 5.95vw, 65px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
     }
     @keyframes orbit2 {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(150px) rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(150px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(60px, 8.05vw, 87px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(60px, 8.05vw, 87px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
     }
     @keyframes orbit3 {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(180px) rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(180px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(75px, 10.15vw, 110px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(75px, 10.15vw, 110px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit4 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(91px, 12.25vw, 133px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(91px, 12.25vw, 133px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit5 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(107px, 14.35vw, 156px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(107px, 14.35vw, 156px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    }
+    @keyframes orbit6 {
+      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(122px, 16.45vw, 178px)) rotate(calc(-1 * var(--sa))); }
+      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(122px, 16.45vw, 178px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
     }
     @keyframes pulse-glow {
-      0%,100% { box-shadow: 0 0 30px rgba(57,224,0,0.4); }
-      50%      { box-shadow: 0 0 50px rgba(57,224,0,0.8), 0 0 80px rgba(57,224,0,0.3); }
+      0%,100% { box-shadow: 0 0 20px rgba(57,224,0,0.4); }
+      50%      { box-shadow: 0 0 40px rgba(57,224,0,0.8), 0 0 70px rgba(57,224,0,0.2); }
     }
     @keyframes spin-arrows { to { transform: rotate(360deg); } }
+    @keyframes float-phone { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-    /* FIX 10: renamed --start-angle to --sa (shorter, avoids any whitespace parse bugs) */
-    .coin-btc { --sa: 0deg;   animation: orbit1 8s linear infinite; }
-    .coin-eth { --sa: 180deg; animation: orbit1 8s linear infinite; }
-    .coin-sol { --sa: 60deg;  animation: orbit2 12s linear infinite; }
-    .coin-bnb { --sa: 240deg; animation: orbit2 12s linear infinite; }
-    .coin-ada { --sa: 120deg; animation: orbit3 16s linear infinite; }
-    .coin-trx { --sa: 300deg; animation: orbit3 16s linear infinite; }
+    /* One coin per ring — no shared radius, no overlap */
+    /* 6 coins, 6 rings — no gaps */
+    .coin-btc  { --sa: 10deg;  animation: orbit1 7s  linear infinite; }
+    .coin-eth  { --sa: 95deg;  animation: orbit2 9s  linear infinite reverse; }
+    .coin-sol  { --sa: 200deg; animation: orbit3 11s linear infinite; }
+    .coin-ada  { --sa: 40deg;  animation: orbit4 13s linear infinite reverse; }
+    .coin-trx  { --sa: 150deg; animation: orbit5 15s linear infinite; }
+    .coin-usdt { --sa: 260deg; animation: orbit6 17s linear infinite reverse; }
     .spin-icon { animation: spin-arrows 4s linear infinite; }
 
-    /* ── TICKER ── */
+    /* ══════════════════════════════════════
+       TICKER
+    ══════════════════════════════════════ */
     .ticker-bar {
-      background: var(--navy);
-      padding: 12px 0;
-      overflow: hidden;
-      border-top: 2px solid var(--green);
+      background: var(--navy); padding: 11px 0;
+      overflow: hidden; border-top: 2px solid var(--green);
     }
     .ticker-track {
       display: flex;
       animation: ticker-scroll 22s linear infinite;
-      width: max-content;
-      will-change: transform;
+      width: max-content; will-change: transform;
     }
     .ticker-item {
       display: flex; align-items: center; gap: 8px;
-      padding: 0 32px;
+      padding: 0 28px;
       color: rgba(255,255,255,0.8);
-      font-size: 0.88rem; font-weight: 500;
+      font-size: 0.85rem; font-weight: 500;
       border-right: 1px solid rgba(255,255,255,0.1);
       white-space: nowrap;
     }
-    .ticker-item .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .ticker-item .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
     @keyframes ticker-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
-    /* ── SECTIONS SHARED ── */
-    section { padding: 96px 48px; }
+    /* ══════════════════════════════════════
+       SECTION SHARED
+    ══════════════════════════════════════ */
+    section { padding: clamp(60px, 8vw, 96px) clamp(20px, 6%, 80px); }
+
     .section-label {
-      font-size: 0.78rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; color: var(--green2);
-      margin-bottom: 12px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--green2); margin-bottom: 10px;
     }
     .section-title {
       font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-size: clamp(1.6rem, 3vw, 2.8rem);
       font-weight: 700; color: var(--navy);
-      line-height: 1.15; margin-bottom: 16px;
+      line-height: 1.15; margin-bottom: 14px;
     }
-    .section-sub { font-size: 1rem; color: var(--gray); line-height: 1.7; max-width: 520px; }
+    .section-sub {
+      font-size: clamp(0.88rem, 1.8vw, 1rem);
+      color: var(--gray); line-height: 1.7; max-width: 540px;
+    }
 
-    /* ── HOW IT WORKS ── */
+    /* ══════════════════════════════════════
+       HOW IT WORKS
+    ══════════════════════════════════════ */
     .how { background: var(--offwhite); }
-    .how-inner { max-width: 1100px; margin: 0 auto; }
-    .how-header { text-align: center; margin-bottom: 64px; }
+    .how-inner { max-width: 1140px; margin: 0 auto; }
+    .how-header { text-align: center; margin-bottom: clamp(36px, 5vw, 64px); }
     .how-header .section-sub { margin: 0 auto; }
+
     .steps {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 32px;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+      gap: clamp(16px, 2.5vw, 32px);
     }
     .step-card {
-      background: white; border-radius: 12px;
-      padding: 36px 28px;
+      background: white; border-radius: 14px;
+      padding: clamp(24px, 3vw, 36px) clamp(20px, 2.5vw, 28px);
       border: 1px solid rgba(27,42,74,0.08);
       position: relative; overflow: hidden;
       transition: box-shadow .25s, transform .25s;
     }
-    .step-card:hover { box-shadow: 0 12px 40px rgba(27,42,74,0.12); transform: translateY(-4px); }
+    .step-card:hover { box-shadow: 0 12px 40px rgba(27,42,74,0.1); transform: translateY(-4px); }
     .step-card::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
       background: linear-gradient(90deg, var(--green), transparent);
     }
     .step-num {
       font-family: 'Rajdhani', sans-serif;
-      font-size: 2.8rem; font-weight: 700;
-      color: rgba(57,224,0,0.2); line-height: 1;
-      margin-bottom: 16px;
+      font-size: 2.6rem; font-weight: 700;
+      color: rgba(57,224,0,0.18); line-height: 1; margin-bottom: 12px;
     }
     .step-icon {
-      width: 48px; height: 48px; border-radius: 10px;
-      background: rgba(57,224,0,0.12);
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 16px;
+      width: 46px; height: 46px; border-radius: 10px;
+      background: rgba(57,224,0,0.1);
+      display: flex; align-items: center; justify-content: center; margin-bottom: 14px;
     }
-    /* FIX 11: SVG inside step-icon was missing explicit fill:none — added to CSS */
-    .step-icon svg {
-      width: 24px; height: 24px;
-      stroke: var(--green2); fill: none; stroke-width: 2;
-      stroke-linecap: round; stroke-linejoin: round;
-    }
-    .step-card h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
-    .step-card p  { font-size: 0.9rem; color: var(--gray); line-height: 1.65; }
+    .step-icon svg { width: 22px; height: 22px; stroke: var(--green2); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .step-card h3 { font-size: clamp(0.92rem, 1.5vw, 1.05rem); font-weight: 700; margin-bottom: 8px; }
+    .step-card p  { font-size: clamp(0.82rem, 1.3vw, 0.9rem); color: var(--gray); line-height: 1.65; }
 
-    /* ── COINS ── */
+    /* ══════════════════════════════════════
+       COINS
+    ══════════════════════════════════════ */
     .coins-section { background: white; }
-    .coins-inner { max-width: 1100px; margin: 0 auto; }
-    .coins-header { text-align: center; margin-bottom: 56px; }
+    .coins-inner { max-width: 1140px; margin: 0 auto; }
+    .coins-header { text-align: center; margin-bottom: clamp(32px, 5vw, 56px); }
     .coins-header .section-sub { margin: 0 auto; }
     .coins-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
+      gap: clamp(12px, 2vw, 20px);
     }
     .coin-card {
       background: var(--offwhite); border-radius: 12px;
-      padding: 28px 20px; text-align: center;
+      padding: clamp(18px, 2.5vw, 28px) clamp(12px, 2vw, 20px);
+      text-align: center;
       border: 1px solid rgba(27,42,74,0.06);
       transition: border-color .2s, box-shadow .2s, transform .2s;
     }
-    .coin-card:hover { border-color: var(--green); box-shadow: 0 4px 20px rgba(57,224,0,0.15); transform: translateY(-3px); }
+    .coin-card:hover { border-color: var(--green); box-shadow: 0 4px 20px rgba(57,224,0,0.12); transform: translateY(-3px); }
     .coin-card .coin-icon {
-      width: 52px; height: 52px; border-radius: 50%;
-      margin: 0 auto 12px;
+      width: clamp(40px, 5vw, 52px); height: clamp(40px, 5vw, 52px);
+      border-radius: 50%; margin: 0 auto 10px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.4rem;
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
     }
-    .coin-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-    /* FIX 12: coin-card span was inheriting green from .hero h1 span — scoped it */
-    .coin-card> span { font-size: 0.78rem; color: var(--gray); }
+    .coin-icon { border: 1px solid rgba(27,42,74,0.07); border-radius: 50%; overflow: hidden; }
+    .coin-icon svg { width: 100%; height: 100%; display: block; }
+    .coin-card h4 { font-size: clamp(0.82rem, 1.3vw, 0.95rem); font-weight: 700; margin-bottom: 3px; }
+    .coin-card > span { font-size: clamp(0.68rem, 1vw, 0.78rem); color: var(--gray); }
 
-    /* ── APP / PHONE SECTION ── */
+    /* ══════════════════════════════════════
+       APP / PHONE SECTION
+    ══════════════════════════════════════ */
     .app-section {
       background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 100%);
-      padding: 96px 48px;
-      display: flex; align-items: center; gap: 72px;
+      padding: clamp(60px, 8vw, 96px) clamp(20px, 6%, 80px);
+      display: flex; align-items: center;
+      gap: clamp(32px, 6vw, 80px);
       overflow: hidden;
     }
-    .app-text { flex: 1; max-width: 500px; }
+    .app-text { flex: 1; max-width: 520px; min-width: 0; }
     .app-text .section-label { color: var(--green); }
     .app-text .section-title { color: white; }
-    .app-text .section-sub { color: rgba(255,255,255,0.65); margin-bottom: 36px; }
-    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+    .app-text .section-sub { color: rgba(255,255,255,0.65); margin-bottom: 28px; }
+
+    .feature-list { list-style: none; display: flex; flex-direction: column; gap: 13px; }
     .feature-list li {
-      display: flex; align-items: flex-start; gap: 12px;
-      color: rgba(255,255,255,0.85); font-size: 0.95rem;
+      display: flex; align-items: flex-start; gap: 10px;
+      color: rgba(255,255,255,0.82); font-size: clamp(0.85rem, 1.5vw, 0.95rem);
     }
-    /* FIX 13: ::before pseudo on li — added display:flex properly for cross-browser */
     .feature-list li::before {
-      content: '✓';
-      flex-shrink: 0;
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(57,224,0,0.2); color: var(--green);
+      content: '✓'; flex-shrink: 0;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(57,224,0,0.18); color: var(--green);
       display: inline-flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 700; margin-top: 1px;
+      font-size: 0.7rem; font-weight: 700; margin-top: 1px;
     }
 
-    /* ── STORE BUTTONS ── */
-    .store-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 32px; }
+    /* Store buttons */
+    .store-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
     .store-btn {
       display: inline-flex; align-items: center; gap: 10px;
       background: transparent;
-      border: 2px solid rgba(255,255,255,0.35);
-      border-radius: 10px;
-      padding: 10px 20px;
-      color: white;
-      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-radius: 10px; padding: 9px 18px;
+      color: white; text-decoration: none;
       transition: border-color .2s, background .2s, transform .15s;
-      cursor: pointer;
     }
     .store-btn:hover { border-color: var(--green); background: rgba(57,224,0,0.07); transform: translateY(-2px); }
-    .store-btn svg { width: 28px; height: 28px; flex-shrink: 0; }
+    .store-btn svg { width: 26px; height: 26px; flex-shrink: 0; }
     .store-btn-text { display: flex; flex-direction: column; }
-    .store-btn-text small { font-size: 0.65rem; color: rgba(255,255,255,0.6); line-height: 1; margin-bottom: 2px; letter-spacing: .03em; }
-    .store-btn-text strong { font-size: 1rem; font-weight: 700; line-height: 1; color: white; }
+    .store-btn-text small { font-size: 0.6rem; color: rgba(255,255,255,0.55); line-height: 1; margin-bottom: 2px; }
+    .store-btn-text strong { font-size: 0.92rem; font-weight: 700; color: white; line-height: 1; }
 
-    /* ── PHONE MOCKUP ── */
+    /* Phone mockup */
     .phones-visual {
-      flex: 1; display: flex; justify-content: center; align-items: center;
-      position: relative; min-height: 380px;
+      flex: 0 0 auto; display: flex; justify-content: center; align-items: center;
+      position: relative; min-height: 320px;
     }
     .phone {
-      width: 200px; height: 360px; border-radius: 30px;
+      width: clamp(150px, 18vw, 210px);
+      height: clamp(270px, 32vw, 380px);
+      border-radius: 28px;
       background: linear-gradient(180deg, #1e2d45 0%, #0d1827 100%);
-      border: 3px solid rgba(255,255,255,0.15);
+      border: 3px solid rgba(255,255,255,0.14);
       position: relative; overflow: hidden;
-      box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+      box-shadow: 0 28px 70px rgba(0,0,0,0.5);
     }
     .phone-screen-content {
-      padding: 40px 16px 16px;
-      height: 100%;
-      display: flex; flex-direction: column; gap: 12px;
+      padding: 36px 14px 14px;
+      height: 100%; display: flex; flex-direction: column; gap: 10px;
     }
     .phone-row { display: flex; justify-content: space-between; align-items: center; }
     .phone-input {
       background: rgba(255,255,255,0.07); border-radius: 8px;
-      padding: 12px; display: flex; justify-content: space-between; align-items: center;
+      padding: 10px; display: flex; justify-content: space-between; align-items: center;
     }
-    .phone-coin-badge {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 0.65rem; font-weight: 700; color: white;
-    }
-    .badge-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; }
+    .phone-coin-badge { display: flex; align-items: center; gap: 5px; font-size: 0.6rem; font-weight: 700; color: white; }
+    .badge-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
+    .badge-dot-btc { background: #F7931A; }
+    .badge-dot-sol { background: #9945FF; }
     .phone-swap-btn {
       background: var(--green); color: var(--navy);
-      border-radius: 8px; padding: 10px;
-      text-align: center; font-size: 0.65rem; font-weight: 700;
-      margin-top: auto;
+      border-radius: 7px; padding: 9px;
+      text-align: center; font-size: 0.6rem; font-weight: 700; margin-top: auto;
     }
-    @keyframes float-phone {
-      0%,100% { transform: translateY(0); }
-      50%      { transform: translateY(-12px); }
-    }
+    .ph-label   { font-size: 0.5rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .ph-title   { font-size: 0.72rem; font-weight: 700; color: #39E000; }
+    .ph-live    { font-size: 0.5rem; color: rgba(255,255,255,0.4); }
+    .ph-val     { font-size: 0.68rem; font-weight: 700; color: white; }
+    .ph-val-rcv { font-size: 0.68rem; font-weight: 700; color: #39E000; }
+    .ph-arrows  { text-align: center; margin: 2px 0; font-size: 0.9rem; color: rgba(255,255,255,0.5); }
+    .ph-rate    { font-size: 0.46rem; color: rgba(255,255,255,0.28); text-align: center; }
+
     .phone-main {
       position: relative; z-index: 2;
       animation: float-phone 5s ease-in-out infinite;
       will-change: transform;
     }
     .phone-accent {
-      position: absolute; bottom: -30px; right: -50px;
-      width: 200px; height: 360px; border-radius: 30px;
-      background: linear-gradient(180deg, rgba(27,42,74,0.8) 0%, rgba(13,24,39,0.95) 100%);
-      border: 3px solid rgba(57,224,0,0.2);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-      transform: rotate(8deg) scale(0.9);
-      z-index: 1;
+      position: absolute;
+      bottom: clamp(-20px, -3vw, -30px);
+      right: clamp(-20px, -3vw, -50px);
+      width: clamp(130px, 16vw, 200px);
+      height: clamp(240px, 29vw, 360px);
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(27,42,74,0.8), rgba(13,24,39,0.95));
+      border: 3px solid rgba(57,224,0,0.18);
+      box-shadow: 0 18px 50px rgba(0,0,0,0.4);
+      transform: rotate(8deg) scale(0.9); z-index: 1;
     }
 
-    /* ── CONTACT ── */
-    .contact-section { background: var(--offwhite); padding: 80px 48px; }
-    .contact-inner { max-width: 900px; margin: 0 auto; text-align: center; }
-    .contact-inner .section-title { margin-bottom: 12px; }
-    .contact-inner> p { color: var(--gray); margin-bottom: 40px; font-size: 1rem; line-height: 1.7; }
-    .contact-cards { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; }
+    /* ══════════════════════════════════════
+       CONTACT
+    ══════════════════════════════════════ */
+    .contact-section {
+      background: var(--offwhite);
+      padding: clamp(60px, 8vw, 80px) clamp(20px, 6%, 80px);
+    }
+    .contact-inner { max-width: 860px; margin: 0 auto; text-align: center; }
+    .contact-inner .section-title { margin-bottom: 10px; }
+    .contact-inner > p { color: var(--gray); margin-bottom: 36px; font-size: clamp(0.88rem, 1.5vw, 1rem); line-height: 1.7; }
+    .contact-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
     .contact-card {
-      background: white; border-radius: 12px; padding: 32px 36px;
+      background: white; border-radius: 14px;
+      padding: clamp(24px, 3vw, 32px) clamp(24px, 3.5vw, 36px);
       border: 1px solid rgba(27,42,74,0.1);
-      display: flex; flex-direction: column; align-items: center; gap: 14px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
       text-decoration: none; color: var(--navy);
       transition: box-shadow .2s, transform .2s, border-color .2s;
-      min-width: 220px;
+      flex: 1; min-width: 200px; max-width: 280px;
     }
-    .contact-card:hover { border-color: var(--green); box-shadow: 0 8px 30px rgba(57,224,0,0.15); transform: translateY(-3px); }
+    .contact-card:hover { border-color: var(--green); box-shadow: 0 8px 28px rgba(57,224,0,0.12); transform: translateY(-3px); }
     .cc-icon {
-      width: 56px; height: 56px; border-radius: 14px;
+      width: 54px; height: 54px; border-radius: 14px;
       display: flex; align-items: center; justify-content: center;
     }
-    .cc-email     { background: rgba(27,42,74,0.08); }
-    .cc-whatsapp  { background: rgba(37,211,102,0.12); }
-    .contact-card h3 { font-size: 1rem; font-weight: 700; }
-    .contact-card p  { font-size: 0.85rem; color: var(--gray); text-align: center; line-height: 1.5; }
+    .cc-email    { background: rgba(27,42,74,0.08); }
+    .cc-whatsapp { background: rgba(37,211,102,0.12); }
+    .contact-card h3 { font-size: 0.98rem; font-weight: 700; }
+    .contact-card p  { font-size: 0.82rem; color: var(--gray); text-align: center; line-height: 1.55; }
 
-    /* ── FAQ ── */
+    /* ══════════════════════════════════════
+       FAQ
+    ══════════════════════════════════════ */
     .faq-section { background: white; }
-    .faq-inner { max-width: 760px; margin: 0 auto; }
-    .faq-header { text-align: center; margin-bottom: 56px; }
-    .faq-item { border-bottom: 1px solid rgba(27,42,74,0.1); }
-    .faq-item:first-of-type { border-top: 1px solid rgba(27,42,74,0.1); }
+    .faq-inner { max-width: 720px; margin: 0 auto; }
+    .faq-header { text-align: center; margin-bottom: clamp(32px, 5vw, 56px); }
+    .faq-item { border-bottom: 1px solid rgba(27,42,74,0.09); }
+    .faq-item:first-of-type { border-top: 1px solid rgba(27,42,74,0.09); }
     .faq-q {
       width: 100%; background: none; border: none;
-      padding: 22px 0; text-align: left; cursor: pointer;
+      padding: 20px 0; text-align: left; cursor: pointer;
       display: flex; justify-content: space-between; align-items: center; gap: 16px;
       font-family: 'Inter', system-ui, sans-serif;
-      font-size: 0.98rem; font-weight: 600;
+      font-size: clamp(0.88rem, 1.5vw, 0.98rem); font-weight: 600;
       color: var(--navy);
-      /* FIX 14: explicit color prevents browser button default grey on some systems */
     }
     .faq-q .arrow {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: rgba(57,224,0,0.12); color: var(--green2);
+      width: 26px; height: 26px; border-radius: 50%;
+      background: rgba(57,224,0,0.1); color: var(--green2);
       display: inline-flex; align-items: center; justify-content: center;
       flex-shrink: 0; transition: transform .25s, background .25s;
-      font-size: 1rem; line-height: 1;
+      font-size: 0.95rem; line-height: 1;
     }
     .faq-item.open .faq-q .arrow { transform: rotate(180deg); background: var(--green); color: white; }
-    .faq-a {
-      max-height: 0; overflow: hidden;
-      transition: max-height .35s ease;
-    }
-    .faq-a p { padding: 0 0 20px; color: var(--gray); font-size: 0.92rem; line-height: 1.75; }
-    .faq-item.open .faq-a { max-height: 300px; }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height .35s ease; }
+    .faq-a p { padding: 0 0 18px; color: var(--gray); font-size: clamp(0.82rem, 1.3vw, 0.92rem); line-height: 1.75; }
+    .faq-item.open .faq-a { max-height: 320px; }
 
-    /* ── FOOTER ── */
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
     footer {
-      background: var(--dark); padding: 48px;
+      background: var(--dark);
+      padding: clamp(28px, 4vw, 48px) clamp(20px, 6%, 80px);
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 20px;
+      flex-wrap: wrap; gap: 16px;
     }
     .footer-brand { display: flex; align-items: center; gap: 4px; text-decoration: none; }
-    .footer-brand span.s { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: white; }
-    .footer-brand span.q { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--green); }
-    footer> p { color: rgba(255,255,255,0.4); font-size: 0.82rem; }
-    .footer-links { display: flex; gap: 24px; flex-wrap: wrap; }
-    .footer-links a { color: rgba(255,255,255,0.5); font-size: 0.82rem; text-decoration: none; transition: color .2s; }
+    .footer-brand span.s,
+    .footer-brand span.q {
+      font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700;
+    }
+    .footer-brand span.s { color: white; }
+    .footer-brand span.q { color: var(--green); }
+    footer > p { color: rgba(255,255,255,0.38); font-size: 0.8rem; }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a { color: rgba(255,255,255,0.48); font-size: 0.8rem; text-decoration: none; transition: color .2s; }
     .footer-links a:hover { color: var(--green); }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      nav { padding: 12px 20px; min-height: unset; }
-      .nav-links { display: none; }
 
-      .hero { flex-direction: column; padding: 88px 24px 60px; text-align: center; gap: 36px; }
-      .hero p { margin: 0 auto 36px; }
+    /* ══════════════════════════════════════
+       BREAKPOINTS
+    ══════════════════════════════════════ */
+
+    /* ── TABLET (481–768px) ── */
+    @media (max-width: 768px) {
+      :root { --nav-h: 58px; }
+
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+      .nav-cta { display: none; } /* shown in drawer instead */
+
+      .hero {
+        flex-direction: column;
+        padding: calc(var(--nav-h) + 40px) 5% 56px;
+        text-align: center; gap: 40px;
+        min-height: auto;
+      }
+      .hero-text { max-width: 100%; }
+      .hero p { margin-left: auto; margin-right: auto; max-width: 480px; }
       .hero-actions { justify-content: center; }
-      /* Word cycle on mobile — full width, allow wrapping */
-      .word-cycle-wrap { width: 100%; }
       .word-cycle-wrap .word { white-space: normal; }
 
-      section { padding: 72px 24px; }
+      .orbit-scene {
+        width: clamp(220px, 70vw, 300px);
+        height: clamp(220px, 70vw, 300px);
+      }
 
-      .app-section { flex-direction: column; padding: 72px 24px; gap: 48px; }
-      .phones-visual { min-height: 280px; }
-      .phone { width: 160px; height: 290px; }
-      .phone-accent { right: -30px; bottom: -20px; width: 160px; height: 290px; }
+      /* Orbit radii rescaled to match the smaller tablet orbit-scene (7 rings) */
+      @keyframes orbit1 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(37px, 11.9vw, 51px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(37px, 11.9vw, 51px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit2 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(51px, 16.1vw, 69px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(51px, 16.1vw, 69px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit3 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(64px, 20.3vw, 87px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(64px, 20.3vw, 87px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit4 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(77px, 24.5vw, 105px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(77px, 24.5vw, 105px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit5 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(90px, 28.7vw, 123px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(90px, 28.7vw, 123px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit6 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(103px, 32.9vw, 141px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(103px, 32.9vw, 141px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+
+      .how-header, .coins-header, .faq-header { text-align: center; }
+
+      .app-section { flex-direction: column; text-align: center; gap: 40px; }
+      .app-text { max-width: 100%; }
+      .app-text .section-sub { margin: 0 auto 28px; }
+      .feature-list { display: inline-flex; flex-direction: column; text-align: left; }
+      .store-buttons { justify-content: center; }
+      .phones-visual { min-height: 260px; }
 
       .contact-cards { flex-direction: column; align-items: center; }
-      .contact-card { width: 100%; max-width: 360px; }
+      .contact-card { max-width: 340px; width: 100%; }
 
-      footer { flex-direction: column; align-items: flex-start; padding: 36px 24px; }
-
-      /* Responsive orbit — smaller radius on mobile */
-      .orbit-scene { width: 280px; height: 280px; }
-      .orbit-ring-1 { width: 160px; height: 160px; }
-      .orbit-ring-2 { width: 230px; height: 230px; }
-      .orbit-ring-3 { width: 280px; height: 280px; }
-      .coin-btc,.coin-eth { animation: orbit1-sm 8s linear infinite; }
-      .coin-sol,.coin-bnb { animation: orbit2-sm 12s linear infinite; }
-      .coin-ada,.coin-trx { animation: orbit3-sm 16s linear infinite; }
+      footer {
+        flex-direction: column; align-items: flex-start; gap: 14px;
+      }
     }
 
-    @keyframes orbit1-sm {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(80px)  rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(80px)  rotate(calc(-1 * (var(--sa) + 360deg))); }
-    }
-    @keyframes orbit2-sm {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(115px) rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(115px) rotate(calc(-1 * (var(--sa) + 360deg))); }
-    }
-    @keyframes orbit3-sm {
-      from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(140px) rotate(calc(-1 * var(--sa))); }
-      to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(140px) rotate(calc(-1 * (var(--sa) + 360deg))); }
+    /* ── SMALL PHONE (max 480px) ── */
+    @media (max-width: 480px) {
+      :root { --nav-h: 54px; }
+
+      nav { padding: 0 16px; }
+
+      .hero {
+        padding: calc(var(--nav-h) + 32px) 16px 48px;
+        gap: 32px;
+      }
+      .hero-eyebrow { font-size: 0.68rem; }
+
+      .btn-primary, .btn-secondary {
+        padding: 12px 20px;
+        width: 100%; text-align: center; display: block;
+      }
+      .hero-actions { flex-direction: column; gap: 10px; }
+
+      .orbit-scene {
+        width: min(280px, 85vw);
+        height: min(280px, 85vw);
+      }
+
+      /* Orbit radii rescaled to match the smallest phone orbit-scene (7 rings) */
+      @keyframes orbit1 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(34px, 10.4vw, 48px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(34px, 10.4vw, 48px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit2 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(46px, 14.1vw, 64px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(46px, 14.1vw, 64px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit3 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(58px, 17.8vw, 81px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(58px, 17.8vw, 81px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit4 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(70px, 21.4vw, 98px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(70px, 21.4vw, 98px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit5 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(82px, 25.1vw, 115px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(82px, 25.1vw, 115px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+      @keyframes orbit6 {
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(94px, 28.8vw, 131px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(94px, 28.8vw, 131px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+      }
+
+      .steps { grid-template-columns: 1fr; }
+      .coins-grid { grid-template-columns: repeat(2, 1fr); }
+
+      .store-buttons { flex-direction: column; align-items: stretch; }
+      .store-btn { justify-content: center; }
+
+      .contact-card { padding: 22px 20px; }
+
+      footer { gap: 12px; }
+      .footer-links { gap: 14px; }
     }
 
-    /* FIX 16: Respect reduced-motion system setting — disable all animations */
+    /* ── SMALL LAPTOP (769–1024px) ── */
+    @media (min-width: 769px) and (max-width: 1024px) {
+      nav { padding: 0 32px; }
+      .nav-links { gap: 18px; }
+      .hero { padding: calc(var(--nav-h) + 48px) 5% 72px; gap: 4%; }
+    }
+
+    /* ── LARGE DESKTOP (1400px+) ── */
+    @media (min-width: 1400px) {
+      .hero { padding: calc(var(--nav-h) + 72px) 8% 80px; }
+      .how-inner, .coins-inner { max-width: 1300px; }
+    }
+
+    /* ── REDUCED MOTION ── */
     @media (prefers-reduced-motion: reduce) {
       .coin, .spin-icon, .phone-main, .ticker-track,
       .word-cycle-wrap .word { animation: none !important; transition: none !important; }
+      /* With animation removed, fall back cleanly to centered position
+         instead of a frozen mid-orbit diagonal scatter */
+      .coin { transform: translate(-50%, -50%) !important; }
       .word-cycle-wrap .word.active { opacity: 1; transform: none; }
       .word-cycle-wrap .word:not(.active) { display: none; }
     }
 
+    /* ══════════════════════════════════════
+       COMING SOON TOAST
+    ══════════════════════════════════════ */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--navy);
+      color: white;
+      padding: 14px 22px;
+      border-radius: 10px;
+      border: 1px solid rgba(57,224,0,0.3);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      max-width: 90vw;
+      text-align: center;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast .toast-icon {
+      flex-shrink: 0;
+      width: 20px; height: 20px;
+      color: var(--green);
+    }
+    .toast .toast-icon svg { width: 100%; height: 100%; }
 
-    /* Phone screen element styles (moved from inline) */
-    .ph-label    { font-size: 0.55rem; color: rgba(255,255,255,0.4); margin-top: 4px; }
-    .ph-title    { font-size: 0.8rem; font-weight: 700; color: #39E000; }
-    .ph-live     { font-size: 0.55rem; color: rgba(255,255,255,0.4); }
-    .ph-val      { font-size: 0.75rem; font-weight: 700; color: white; }
-    .ph-val-rcv  { font-size: 0.75rem; font-weight: 700; color: #39E000; }
-    .ph-arrows   { text-align: center; margin: 4px 0; font-size: 1rem; color: rgba(255,255,255,0.5); }
-    .ph-rate     { font-size: 0.5rem; color: rgba(255,255,255,0.3); text-align: center; }
-    /* Coin icon background colors (moved from inline styles) */
-    .coin-icon.ci-btc  { background: #FEF3E2; }
-    .coin-icon.ci-eth  { background: #EEF0FC; }
-    .coin-icon.ci-sol  { background: #F4EEFF; }
-    .coin-icon.ci-bnb  { background: #FFFBE6; }
-    .coin-icon.ci-ada  { background: #E8F8FF; }
-    .coin-icon.ci-trx  { background: #FEE8EC; }
-    .coin-icon.ci-usdt { background: #E8F5F0; }
-    .coin-icon.ci-ltc  { background: #F0F4FF; }
-
-    /* Badge dot colors */
-    .badge-dot-btc { background: #F7931A; }
-    .badge-dot-sol { background: #9945FF; }
+    @media (max-width: 480px) {
+      .toast {
+        left: 16px; right: 16px;
+        transform: translateY(20px);
+        max-width: none;
+      }
+      .toast.show { transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -619,17 +842,29 @@ header, .site-header, .navbar {
   </a>
   <ul class="nav-links">
     <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#coins">Supported Coins</a></li>
+    <li><a href="#coins">Coins</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
   <a href="#contact" class="nav-cta">Start Swapping</a>
+  <button type="button" class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<nav class="nav-drawer" id="navDrawer" aria-label="Mobile navigation">
+  <a href="#how-it-works">How It Works</a>
+  <a href="#coins">Coins</a>
+  <a href="#contact">Contact</a>
+  <a href="#faq">FAQ</a>
+  <a href="#contact" class="drawer-cta">Start Swapping</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
   <div class="hero-text">
-    <div class="hero-eyebrow"> Swap Quickly</div>
+    <div class="hero-eyebrow">⚡ Swap Quickly</div>
     <h1>
       Exchange Crypto<br>
       <span class="sr-only" id="cycleLabel" aria-live="polite" aria-atomic="true">Fast &amp; Easy</span><span class="word-cycle-wrap" id="wordCycle" aria-hidden="true">
@@ -639,7 +874,7 @@ header, .site-header, .navbar {
         <span class="word">Seamless</span>
       </span><br>Transactions
     </h1>
-    <p>SwapQ lets you instantly swap Bitcoin, Solana, BNB, Ethereum, and more — across blockchains, with zero stress. Your rate. Your speed. Your swap.</p>
+    <p>SwapQ lets you instantly swap Bitcoin, Solana, Ethereum, USDT and more — across blockchains, with zero stress. Your rate. Your speed. Your swap.</p>
     <div class="hero-actions">
       <a href="#contact" class="btn-primary">Swap Now via WhatsApp</a>
       <a href="#how-it-works" class="btn-secondary">See How It Works</a>
@@ -651,6 +886,9 @@ header, .site-header, .navbar {
       <div class="orbit-ring orbit-ring-1"></div>
       <div class="orbit-ring orbit-ring-2"></div>
       <div class="orbit-ring orbit-ring-3"></div>
+      <div class="orbit-ring orbit-ring-4"></div>
+      <div class="orbit-ring orbit-ring-5"></div>
+      <div class="orbit-ring orbit-ring-6"></div>
       <div class="orbit-center">
         <svg class="spin-icon" viewBox="0 0 36 36" fill="none">
           <path d="M6 18C6 11.373 11.373 6 18 6a12 12 0 0 1 9.6 4.8" stroke="#39E000" stroke-width="2.5" stroke-linecap="round"/>
@@ -659,12 +897,49 @@ header, .site-header, .navbar {
           <path d="M10 31l-4-5.5 5.5-.5" fill="#39E000"/>
         </svg>
       </div>
-      <div class="coin coin-btc">₿<br>BTC</div>
-      <div class="coin coin-eth">Ξ<br>ETH</div>
-      <div class="coin coin-sol">◎<br>SOL</div>
-      <div class="coin coin-bnb">⬡<br>BNB</div>
-      <div class="coin coin-ada">₳<br>ADA</div>
-      <div class="coin coin-trx">T<br>TRX</div>
+      <!-- Bitcoin -->
+      <div class="coin coin-btc">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path fill="#fff" d="M22.5 14.2c.3-2.1-1.3-3.2-3.5-3.9l.7-2.9-1.8-.4-.7 2.8c-.5-.1-1-.2-1.4-.3l.7-2.8-1.8-.4-.7 2.9c-.4-.1-.8-.2-1.1-.3l-2.5-.6-.5 2s1.3.3 1.3.3c.7.2.8.6.8 1l-.8 3.2c.1 0 .1 0 .2.1h-.2l-1.1 4.5c-.1.2-.3.5-.8.4 0 0-1.3-.3-1.3-.3l-.9 2.1 2.4.6c.4.1.9.2 1.3.4l-.7 3 1.8.4.7-2.9c.5.1 1 .2 1.4.3l-.7 2.9 1.8.4.7-3c3.1.6 5.4.3 6.4-2.4.8-2.2 0-3.4-1.6-4.2 1.1-.3 2-1 2.2-2.5zm-4.1 5.7c-.6 2.2-4.4 1-5.6.7l1-4c1.2.3 5.2.9 4.6 3.3zm.6-5.7c-.5 2-3.8 1-4.7.8l.9-3.6c1 .2 4.3.7 3.8 2.8z"/></svg>
+      </div>
+      <!-- Ethereum -->
+      <div class="coin coin-eth">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/><path fill="#343434" d="M16.2 4 16 4.5v15.2l.2.2 8-4.7z"/><path fill="#8C8C8C" d="M16.2 4 8 15.2l8.2 4.7V4z"/><path fill="#3C3C3B" d="M16.2 21.6l-.1.2v6.4l.1.3 8.1-11.4z"/><path fill="#8C8C8C" d="M16.2 28.5v-6.9L8 17.1z"/><path fill="#141414" d="M16.2 19.9l8-4.7-8-3.6z"/><path fill="#393939" d="M8 15.2l8.2 4.7v-8.3z"/></svg>
+      </div>
+      <!-- Solana -->
+      <div class="coin coin-sol">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#000"/><defs><linearGradient id="solg1" x1="6" y1="20" x2="26" y2="20"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient><linearGradient id="solg2" x1="6" y1="16" x2="26" y2="16"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient><linearGradient id="solg3" x1="6" y1="12" x2="26" y2="12"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs><path fill="url(#solg1)" d="M9.5 19.8c.2-.2.5-.3.8-.3h14.7c.5 0 .7.6.4.9l-2.9 2.9c-.2.2-.5.3-.8.3H6c-.5 0-.7-.6-.4-.9z"/><path fill="url(#solg2)" d="M9.5 9.3c.2-.2.5-.3.8-.3h14.7c.5 0 .7.6.4.9l-2.9 2.9c-.2.2-.5.3-.8.3H6c-.5 0-.7-.6-.4-.9z"/><path fill="url(#solg3)" d="M22.5 14.5c-.2-.2-.5-.3-.8-.3H7c-.5 0-.7.6-.4.9l2.9 2.9c.2.2.5.3.8.3h14.7c.5 0 .7-.6.4-.9z"/></svg>
+      </div>
+      <!-- Cardano -->
+      <div class="coin coin-ada">
+        <svg viewBox="0 0 32 32">
+          <circle cx="16" cy="16" r="16" fill="#0033AD"/>
+          <g fill="#fff">
+            <circle cx="16" cy="16" r="2.3"/>
+            <circle cx="16" cy="9.5" r="1.5"/>
+            <circle cx="16" cy="22.5" r="1.5"/>
+            <circle cx="11" cy="12.2" r="1.5"/>
+            <circle cx="21" cy="12.2" r="1.5"/>
+            <circle cx="11" cy="19.8" r="1.5"/>
+            <circle cx="21" cy="19.8" r="1.5"/>
+            <circle cx="8.3" cy="16" r="1.5"/>
+            <circle cx="23.7" cy="16" r="1.5"/>
+            <circle cx="12.8" cy="16" r="1.9"/>
+            <circle cx="19.2" cy="16" r="1.9"/>
+            <circle cx="13.3" cy="10.8" r="0.9"/>
+            <circle cx="18.7" cy="10.8" r="0.9"/>
+            <circle cx="13.3" cy="21.2" r="0.9"/>
+            <circle cx="18.7" cy="21.2" r="0.9"/>
+          </g>
+        </svg>
+      </div>
+      <!-- TRON -->
+      <div class="coin coin-trx">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/><path fill="#EF0027" d="M21.7 11.4 8.4 9l6.8 17.1 9.4-11.5-2.9-3.2zm-.6 1.1 1.8 2-7.1 1.4 5.3-3.4zM14.6 24l-4.7-12 9.7 1.8L14.6 24zm6.2-11.7-5.3 3.3-3.6-4.4 8.9 1.1z"/></svg>
+      </div>
+      <!-- USDT -->
+      <div class="coin coin-usdt">
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M17.9 17.4v-.01c-.1 0-.7.05-1.9.05-1 0-1.6-.03-1.9-.05v.01c-3.2-.14-5.6-.7-5.6-1.37 0-.67 2.4-1.23 5.6-1.38v2.2c.3.02.9.06 1.9.06 1.1 0 1.7-.05 1.9-.06v-2.2c3.1.15 5.5.71 5.5 1.38 0 .67-2.4 1.23-5.5 1.37zm0-2.97v-1.97h4.4V9.5H9.8v2.96h4.4v1.97c-3.6.16-6.3.86-6.3 1.7 0 .83 2.7 1.53 6.3 1.7v6.07h2v-6.07c3.6-.17 6.3-.87 6.3-1.7 0-.84-2.7-1.54-6.3-1.7z"/></svg>
+      </div>
     </div>
   </div>
 </section>
@@ -675,16 +950,13 @@ header, .site-header, .navbar {
     <div class="ticker-item"><span class="dot"></span>Bitcoin (BTC)</div>
     <div class="ticker-item"><span class="dot"></span>Ethereum (ETH)</div>
     <div class="ticker-item"><span class="dot"></span>Solana (SOL)</div>
-    <div class="ticker-item"><span class="dot"></span>BNB (BNB)</div>
     <div class="ticker-item"><span class="dot"></span>Cardano (ADA)</div>
     <div class="ticker-item"><span class="dot"></span>TRON (TRX)</div>
     <div class="ticker-item"><span class="dot"></span>Litecoin (LTC)</div>
     <div class="ticker-item"><span class="dot"></span>USDT (TRC20)</div>
-    <!-- duplicate for seamless loop -->
     <div class="ticker-item"><span class="dot"></span>Bitcoin (BTC)</div>
     <div class="ticker-item"><span class="dot"></span>Ethereum (ETH)</div>
     <div class="ticker-item"><span class="dot"></span>Solana (SOL)</div>
-    <div class="ticker-item"><span class="dot"></span>BNB (BNB)</div>
     <div class="ticker-item"><span class="dot"></span>Cardano (ADA)</div>
     <div class="ticker-item"><span class="dot"></span>TRON (TRX)</div>
     <div class="ticker-item"><span class="dot"></span>Litecoin (LTC)</div>
@@ -703,102 +975,104 @@ header, .site-header, .navbar {
     <div class="steps">
       <div class="step-card">
         <div class="step-num">01</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24"><path d="M8 12h8M12 8l4 4-4 4"/></svg>
-        </div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M8 12h8M12 8l4 4-4 4"/></svg></div>
         <h3>Tell Us What You Want</h3>
-        <p>Contact us via WhatsApp or email. Tell us which coin you're sending and which one you want in return.</p>
+        <p>Contact us via WhatsApp or email. Tell us which coin you're sending and which one you want back.</p>
       </div>
       <div class="step-card">
         <div class="step-num">02</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg>
-        </div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></div>
         <h3>Get a Quote &amp; Confirm</h3>
-        <p>We send you the exact rate and wallet address. You confirm the swap — no hidden fees, no surprises.</p>
+        <p>We send you the exact rate and wallet address. You confirm — no hidden fees, no surprises.</p>
       </div>
       <div class="step-card">
         <div class="step-num">03</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-        </div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></div>
         <h3>Send &amp; Receive Fast</h3>
-        <p>Send your crypto to the provided address. Once confirmed on chain, we send your swapped coin right away.</p>
+        <p>Send your crypto to our address. Once confirmed on chain, we release your coins immediately.</p>
       </div>
       <div class="step-card">
         <div class="step-num">04</div>
-        <div class="step-icon">
-          <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-        </div>
+        <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
         <h3>You're Done ✓</h3>
-        <p>Crypto lands in your wallet. Fast, clean, no stress. Come back whenever you need to swap again.</p>
+        <p>Crypto lands in your wallet. Fast, clean, no stress. Come back whenever you need to swap.</p>
       </div>
     </div>
   </div>
 </section>
 
-  
-<!-- COINS WE SUPPORT -->
+<!-- COINS -->
 <section class="coins-section" id="coins">
   <div class="coins-inner">
     <div class="coins-header">
       <div class="section-label">Supported Assets</div>
       <h2 class="section-title">Coins We Swap</h2>
-      <p class="section-sub">We support major cryptocurrencies across their native blockchains — with more being added regularly.</p>
+      <p class="section-sub">Major cryptocurrencies across their native blockchains — with more being added regularly.</p>
     </div>
     <div class="coins-grid">
-      <div class="coin-card"><div class="coin-icon ci-btc">₿</div><h4>Bitcoin</h4><span>BTC</span></div>
-      <div class="coin-card"><div class="coin-icon ci-eth">Ξ</div><h4>Ethereum</h4><span>ETH</span></div>
-      <div class="coin-card"><div class="coin-icon ci-sol">◎</div><h4>Solana</h4><span>SOL</span></div>
-      <div class="coin-card"><div class="coin-icon ci-bnb">⬡</div><h4>BNB</h4><span>BNB Chain</span></div>
-      <div class="coin-card"><div class="coin-icon ci-ada">₳</div><h4>Cardano</h4><span>ADA</span></div>
-      <div class="coin-card"><div class="coin-icon ci-trx">T</div><h4>TRON</h4><span>TRX</span></div>
-      <div class="coin-card"><div class="coin-icon ci-usdt">$</div><h4>USDT</h4><span>TRC20 / ERC20</span></div>
-      <div class="coin-card"><div class="coin-icon ci-ltc">Ł</div><h4>Litecoin</h4><span>LTC</span></div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path fill="#fff" d="M22.5 14.2c.3-2.1-1.3-3.2-3.5-3.9l.7-2.9-1.8-.4-.7 2.8c-.5-.1-1-.2-1.4-.3l.7-2.8-1.8-.4-.7 2.9c-.4-.1-.8-.2-1.1-.3l-2.5-.6-.5 2s1.3.3 1.3.3c.7.2.8.6.8 1l-.8 3.2c.1 0 .1 0 .2.1h-.2l-1.1 4.5c-.1.2-.3.5-.8.4 0 0-1.3-.3-1.3-.3l-.9 2.1 2.4.6c.4.1.9.2 1.3.4l-.7 3 1.8.4.7-2.9c.5.1 1 .2 1.4.3l-.7 2.9 1.8.4.7-3c3.1.6 5.4.3 6.4-2.4.8-2.2 0-3.4-1.6-4.2 1.1-.3 2-1 2.2-2.5zm-4.1 5.7c-.6 2.2-4.4 1-5.6.7l1-4c1.2.3 5.2.9 4.6 3.3zm.6-5.7c-.5 2-3.8 1-4.7.8l.9-3.6c1 .2 4.3.7 3.8 2.8z"/></svg></div>
+        <h4>Bitcoin</h4><span>BTC</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/><path fill="#343434" d="M16.2 4 16 4.5v15.2l.2.2 8-4.7z"/><path fill="#8C8C8C" d="M16.2 4 8 15.2l8.2 4.7V4z"/><path fill="#3C3C3B" d="M16.2 21.6l-.1.2v6.4l.1.3 8.1-11.4z"/><path fill="#8C8C8C" d="M16.2 28.5v-6.9L8 17.1z"/><path fill="#141414" d="M16.2 19.9l8-4.7-8-3.6z"/><path fill="#393939" d="M8 15.2l8.2 4.7v-8.3z"/></svg></div>
+        <h4>Ethereum</h4><span>ETH</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#000"/><defs><linearGradient id="g1s1" x1="6" y1="20" x2="26" y2="20"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient><linearGradient id="g1s2" x1="6" y1="16" x2="26" y2="16"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient><linearGradient id="g1s3" x1="6" y1="12" x2="26" y2="12"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs><path fill="url(#g1s1)" d="M9.5 19.8c.2-.2.5-.3.8-.3h14.7c.5 0 .7.6.4.9l-2.9 2.9c-.2.2-.5.3-.8.3H6c-.5 0-.7-.6-.4-.9z"/><path fill="url(#g1s2)" d="M9.5 9.3c.2-.2.5-.3.8-.3h14.7c.5 0 .7.6.4.9l-2.9 2.9c-.2.2-.5.3-.8.3H6c-.5 0-.7-.6-.4-.9z"/><path fill="url(#g1s3)" d="M22.5 14.5c-.2-.2-.5-.3-.8-.3H7c-.5 0-.7.6-.4.9l2.9 2.9c.2.2.5.3.8.3h14.7c.5 0 .7-.6.4-.9z"/></svg></div>
+        <h4>Solana</h4><span>SOL</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#0033AD"/><g fill="#fff"><circle cx="16" cy="16" r="2.3"/><circle cx="16" cy="9.5" r="1.5"/><circle cx="16" cy="22.5" r="1.5"/><circle cx="11" cy="12.2" r="1.5"/><circle cx="21" cy="12.2" r="1.5"/><circle cx="11" cy="19.8" r="1.5"/><circle cx="21" cy="19.8" r="1.5"/><circle cx="8.3" cy="16" r="1.5"/><circle cx="23.7" cy="16" r="1.5"/><circle cx="12.8" cy="16" r="1.9"/><circle cx="19.2" cy="16" r="1.9"/><circle cx="13.3" cy="10.8" r="0.9"/><circle cx="18.7" cy="10.8" r="0.9"/><circle cx="13.3" cy="21.2" r="0.9"/><circle cx="18.7" cy="21.2" r="0.9"/></g></svg></div>
+        <h4>Cardano</h4><span>ADA</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/><path fill="#EF0027" d="M21.7 11.4 8.4 9l6.8 17.1 9.4-11.5-2.9-3.2zm-.6 1.1 1.8 2-7.1 1.4 5.3-3.4zM14.6 24l-4.7-12 9.7 1.8L14.6 24zm6.2-11.7-5.3 3.3-3.6-4.4 8.9 1.1z"/></svg></div>
+        <h4>TRON</h4><span>TRX</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M17.9 17.4v-.01c-.1 0-.7.05-1.9.05-1 0-1.6-.03-1.9-.05v.01c-3.2-.14-5.6-.7-5.6-1.37 0-.67 2.4-1.23 5.6-1.38v2.2c.3.02.9.06 1.9.06 1.1 0 1.7-.05 1.9-.06v-2.2c3.1.15 5.5.71 5.5 1.38 0 .67-2.4 1.23-5.5 1.37zm0-2.97v-1.97h4.4V9.5H9.8v2.96h4.4v1.97c-3.6.16-6.3.86-6.3 1.7 0 .83 2.7 1.53 6.3 1.7v6.07h2v-6.07c3.6-.17 6.3-.87 6.3-1.7 0-.84-2.7-1.54-6.3-1.7z"/></svg></div>
+        <h4>USDT</h4><span>TRC20 / ERC20</span>
+      </div>
+      <div class="coin-card">
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#345D9D"/><path fill="#fff" d="M13.4 19.6l1-3.9-1.9.6.4-1.5 1.9-.6 1.6-6.4h3.6l-1.3 5.2 1.9-.6-.4 1.6-1.9.6-.7 2.9h5.6l-.5 2.1H10.8z"/></svg></div>
+        <h4>Litecoin</h4><span>LTC</span>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- PHONE / APP SECTION -->
+<!-- APP SECTION -->
 <section class="app-section">
   <div class="app-text">
     <div class="section-label">Experience</div>
     <h2 class="section-title">Swapping From<br>Your Phone</h2>
-    <p class="section-sub">Our full app is coming soon. Until then, our WhatsApp support line handles every swap personally — fast response, real humans, zero bots.</p>
+    <p class="section-sub">Our full app is coming soon. Until then, every swap is handled personally via WhatsApp — fast response, real humans, zero bots.</p>
     <ul class="feature-list">
       <li>Fast quotes via WhatsApp — usually within minutes</li>
-      <li>Real-time swap tracking via blockchain confirmation</li>
-      <li>Support for all major coins across native blockchains</li>
-      <li>P2P swaps handled securely with verified wallets</li>
-      <li>Full app launching soon — join the waitlist</li>
+      <li>Real-time tracking via blockchain confirmation</li>
+      <li>All major coins across native blockchains</li>
+      <li>P2P swaps with verified wallets — no middlemen</li>
+      <li>Full app launching soon</li>
     </ul>
     <div class="store-buttons">
-      <!-- Google Play -->
-      <a href="#" class="store-btn" aria-label="Get it on Google Play">
+      <a href="#" class="store-btn" data-store="Google Play" aria-label="Get it on Google Play" onclick="showComingSoon(event, this)">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M3.18 1.42C2.76 1.65 2.5 2.1 2.5 2.65v18.7c0 .55.26 1 .68 1.23l.1.06 10.48-10.48v-.24L3.28 1.36l-.1.06z" fill="#EA4335"/>
           <path d="M17.1 15.52l-3.49-3.49v-.24l3.49-3.49.08.04 4.14 2.35c1.18.67 1.18 1.77 0 2.44l-4.14 2.35-.08.04z" fill="#FBBC04"/>
           <path d="M17.18 15.48L13.61 12 3.18 22.42c.39.41 1.03.46 1.74.05l12.26-6.99" fill="#34A853"/>
           <path d="M17.18 8.52L4.92 1.53C4.21 1.12 3.57 1.17 3.18 1.58L13.61 12l3.57-3.48z" fill="#EA4335"/>
         </svg>
-        <div class="store-btn-text">
-          <small>GET IT ON</small>
-          <strong>Google Play</strong>
-        </div>
+        <div class="store-btn-text"><small>GET IT ON</small><strong>Google Play</strong></div>
       </a>
-      <!-- App Store -->
-      <a href="#" class="store-btn" aria-label="Download on the App Store">
+      <a href="#" class="store-btn" data-store="App Store" aria-label="Download on the App Store" onclick="showComingSoon(event, this)">
         <svg viewBox="0 0 24 24" fill="white" aria-hidden="true">
           <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98l-.09.06c-.22.14-2.18 1.37-2.16 3.81.03 2.93 2.56 3.91 2.59 3.92l-.18.89zM13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
         </svg>
-        <div class="store-btn-text">
-          <small>Download on the</small>
-          <strong>App Store</strong>
-        </div>
+        <div class="store-btn-text"><small>Download on the</small><strong>App Store</strong></div>
       </a>
     </div>
   </div>
-
   <div class="phones-visual" aria-hidden="true">
     <div class="phone-accent"></div>
     <div class="phone phone-main">
@@ -809,21 +1083,17 @@ header, .site-header, .navbar {
         </div>
         <p class="ph-label">You Send</p>
         <div class="phone-input">
-          <div class="phone-coin-badge">
-            <div class="badge-dot badge-dot-btc"></div>BTC
-          </div>
+          <div class="phone-coin-badge"><div class="badge-dot badge-dot-btc"></div>BTC</div>
           <span class="ph-val">0.05</span>
         </div>
         <div class="ph-arrows">⇅</div>
         <p class="ph-label">You Receive</p>
         <div class="phone-input">
-          <div class="phone-coin-badge">
-            <div class="badge-dot badge-dot-sol"></div>SOL
-          </div>
+          <div class="phone-coin-badge"><div class="badge-dot badge-dot-sol"></div>SOL</div>
           <span class="ph-val-rcv">≈ 8.32</span>
         </div>
         <div class="ph-rate">Rate: 1 BTC ≈ 166.4 SOL</div>
-        <div class="phone-swap-btn"> Swap Quickly</div>
+        <div class="phone-swap-btn">⚡ Swap Quickly</div>
       </div>
     </div>
   </div>
@@ -866,61 +1136,33 @@ header, .site-header, .navbar {
       <div class="section-label">Questions</div>
       <h2 class="section-title">Frequently Asked Questions</h2>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        How do I swap my crypto on SwapQ?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>It's simple: contact us on WhatsApp or email, tell us which coin you're sending and what you want back, confirm the quote and wallet we give you, then send your crypto. Once the blockchain confirms your transaction, we send your swapped coins immediately.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">How do I swap my crypto on SwapQ?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Contact us on WhatsApp or email, tell us which coin you're sending and what you want back, confirm the quote and wallet we give you, then send your crypto. Once confirmed on the blockchain, we send your swapped coins immediately.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        How long does it take to complete a swap?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>Most swaps complete within 15–45 minutes. This depends on blockchain confirmation time for the coin you're sending. Bitcoin typically takes longer (3–6 confirmations), while Solana, TRON, and BNB are usually much faster.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">How long does a swap take?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Most swaps complete within 15–45 minutes, depending on blockchain confirmation time. Bitcoin takes longer (3–6 confirmations), while Solana and TRON are usually much faster.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        Is SwapQ a P2P exchange?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>Yes, SwapQ operates as a P2P (peer-to-peer) exchange. This means you're swapping directly with us — no third-party intermediary, no automated liquidity pool. We handle the swap personally, which allows for faster resolution and human support on every transaction.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">Is SwapQ a P2P exchange?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Yes. SwapQ operates P2P — you swap directly with us. No third-party intermediary, no automated pool. Every swap is handled personally for faster resolution and real human support.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        What coins and blockchains do you support?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>We support Bitcoin (BTC), Ethereum (ETH), Solana (SOL), BNB (BNB Chain), Cardano (ADA), TRON (TRX), Litecoin (LTC), and USDT on both TRC20 and ERC20 networks. More assets are being added — ask us if yours isn't listed.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">What coins do you support?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Bitcoin (BTC), Ethereum (ETH), Solana (SOL), Cardano (ADA), TRON (TRX), Litecoin (LTC), and USDT on TRC20/ERC20. More are being added — ask us if yours isn't listed.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        Are there any fees?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>We charge a small service fee that's already baked into the rate we quote you. There are no surprise charges. The rate you see is the rate you get. The only additional cost is the standard blockchain transaction fee (network fee) for sending your coins.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">Are there any fees?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>A small service fee is already included in the rate we quote you — no surprise charges. The only additional cost is the standard blockchain network fee for your send transaction.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        Is it safe to swap with SwapQ?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>We operate transparently and personally. Every swap is handled by our team, not an algorithm. We provide a wallet address verified for each transaction, and we only release your coins after confirming receipt on the blockchain. We recommend starting with a smaller test swap if it's your first time.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">Is it safe to swap with SwapQ?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Every swap is handled by our team personally — not an algorithm. We confirm your transaction on the blockchain before releasing your coins, and you'll have a real person to talk to throughout the process via WhatsApp or email — not a faceless system.</p></div>
     </div>
-
     <div class="faq-item">
-      <button class="faq-q" type="button" onclick="toggleFAQ(this)">
-        What if there's a problem with my swap?
-        <span class="arrow" aria-hidden="true">▾</span>
-      </button>
-      <div class="faq-a"><p>Reach out immediately via WhatsApp or email. Since every swap involves a real person on our end, issues are resolved quickly. Blockchain transactions are irreversible, so double-check wallet addresses before sending — our support team is always available to help troubleshoot.</p></div>
+      <button class="faq-q" type="button" onclick="toggleFAQ(this)">What if there's a problem?<span class="arrow" aria-hidden="true">▾</span></button>
+      <div class="faq-a"><p>Reach out immediately via WhatsApp or email. Every swap involves a real person on our end so issues get resolved quickly. Always double-check wallet addresses before sending.</p></div>
     </div>
   </div>
 </section>
@@ -938,40 +1180,46 @@ header, .site-header, .navbar {
     <a href="#faq">FAQ</a>
     <a href="mailto:support@swapquickly.com">Email</a>
   </nav>
-  </footer>
+</footer>
 
-  <script>
+<script>
+
+  /* ── COMING SOON TOAST ──
+     NOTE FOR LATER: once the real App Store / Google Play
+     links are ready, remove the onclick="showComingSoon(...)"
+     attribute from each <a class="store-btn"> and replace its
+     href="#" with the real store URL. This function and the
+     toast markup can stay or be deleted at that point. */
+  var toastTimeout;
+  function showComingSoon(event, btn) {
+    event.preventDefault();
+    var toast = document.getElementById('comingSoonToast');
+    var msg = document.getElementById('toastMessage');
+    var store = btn.getAttribute('data-store') || 'This app';
+    msg.textContent = store + ' — coming soon';
+    toast.classList.add('show');
+    clearTimeout(toastTimeout);
+    toastTimeout = setTimeout(function () {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+
   /* ── HAMBURGER MENU ── */
- document.addEventListener('DOMContentLoaded', function () {
   var burger = document.getElementById('burgerBtn');
   var drawer = document.getElementById('navDrawer');
 
-  if (burger && drawer) {
-    burger.setAttribute('aria-expanded', 'false');
+  burger.addEventListener('click', function () {
+    var isOpen = drawer.classList.toggle('open');
+    burger.setAttribute('aria-expanded', isOpen);
+  });
 
-    burger.addEventListener('click', function () {
-      var isOpen = drawer.classList.toggle('open');
-      burger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  // Close drawer when any drawer link is clicked
+  drawer.querySelectorAll('a').forEach(function (link) {
+    link.addEventListener('click', function () {
+      drawer.classList.remove('open');
+      burger.setAttribute('aria-expanded', 'false');
     });
-
-    drawer.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
-        drawer.classList.remove('open');
-        burger.setAttribute('aria-expanded', 'false');
-      });
-    });
-
-    // Optional: close drawer if user clicks outside it
-    document.addEventListener('click', function (e) {
-      if (drawer.classList.contains('open') &&
-          !drawer.contains(e.target) &&
-          !burger.contains(e.target)) {
-        drawer.classList.remove('open');
-        burger.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-});
+  });
 
   /* ── WORD CYCLING ── */
   (function () {
@@ -1021,6 +1269,16 @@ header, .site-header, .navbar {
     });
   });
 </script>
+
+<!-- COMING SOON TOAST -->
+<div class="toast" id="comingSoonToast" role="status" aria-live="polite">
+  <span class="toast-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+      <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+  </span>
+  <span id="toastMessage">Coming soon</span>
+</div>
 </body>
 </html>
-  
