@@ -29,7 +29,8 @@
       --offwhite: #F4F8F4;
       --gray:     #6B7280;
       --dark:     #0D1A2E;
-      --nav-h:    64px;
+      --nav-h:      78px; /* total space reserved: 14px top margin + pill height */
+      --nav-pill-h: 64px; /* the pill's own height */
     }
 
     html {
@@ -50,38 +51,51 @@
     /* ══════════════════════════════════════
        NAV
     ══════════════════════════════════════ */
-    nav {
+    /* Floating pill/capsule nav — sits with margin on all sides,
+       fully rounded, logo + tagline left, links/CTA + burger right */
+    .nav-wrap {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-      height: var(--nav-h);
+      padding: 14px clamp(16px, 4vw, 40px) 0;
+      display: flex; justify-content: center;
+      pointer-events: none; /* wrapper itself doesn't block clicks, nav does */
+    }
+    nav {
+      pointer-events: auto;
+      width: 100%; max-width: 1240px;
+      height: var(--nav-pill-h);
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 48px;
-      /* FIX: fully opaque white as the safe default. backdrop-filter
-         blur is a progressive enhancement layered on top via the
-         @supports rule below — some Android WebView/Chrome builds
-         render an unsupported backdrop-filter as fully transparent,
-         which made the entire nav (logo, links, button) invisible
-         even though the markup was correct. */
+      padding: 0 10px 0 22px;
+      border-radius: 999px;
       background: #FFFFFF;
-      border-bottom: 1px solid rgba(27,42,74,0.08);
+      box-shadow: 0 8px 30px rgba(13,26,46,0.12), 0 2px 8px rgba(13,26,46,0.06);
+      border: 1px solid rgba(27,42,74,0.06);
     }
     @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
       nav {
-        background: rgba(255,255,255,0.97);
-        -webkit-backdrop-filter: blur(12px);
-        backdrop-filter: blur(12px);
+        background: rgba(255,255,255,0.92);
+        -webkit-backdrop-filter: blur(14px);
+        backdrop-filter: blur(14px);
       }
     }
-    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-    .nav-logo svg { width: 32px; height: 32px; flex-shrink: 0; }
-    .nav-logo span.swap,
-    .nav-logo span.q {
-      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-      font-size: 1.55rem; font-weight: 700; line-height: 1;
-    }
-    .nav-logo span.swap { color: var(--navy); }
-    .nav-logo span.q    { color: var(--green); }
 
-    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo svg { width: 34px; height: 34px; flex-shrink: 0; }
+    .nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .nav-logo-text .nav-wordmark span.swap,
+    .nav-logo-text .nav-wordmark span.q {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      font-size: 1.4rem; font-weight: 700; line-height: 1;
+    }
+    .nav-logo-text .nav-wordmark span.swap { color: var(--navy); }
+    .nav-logo-text .nav-wordmark span.q    { color: var(--green); }
+    .nav-tagline {
+      font-size: 0.62rem; font-weight: 600; letter-spacing: .04em;
+      color: var(--gray); margin-top: 1px;
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 22px; }
+
+    .nav-links { display: flex; gap: 26px; list-style: none; }
     .nav-links a {
       text-decoration: none; color: var(--navy);
       font-weight: 500; font-size: 0.92rem;
@@ -91,8 +105,8 @@
 
     .nav-cta {
       background: var(--green); color: var(--navy);
-      border: none; padding: 9px 22px; border-radius: 6px;
-      font-weight: 700; font-size: 0.88rem; cursor: pointer;
+      border: none; padding: 11px 26px; border-radius: 999px;
+      font-weight: 700; font-size: 0.86rem; cursor: pointer;
       text-decoration: none;
       display: inline-flex; align-items: center;
       transition: background .2s, transform .15s;
@@ -100,25 +114,37 @@
     }
     .nav-cta:hover { background: var(--green2); transform: translateY(-1px); }
 
-    /* Hamburger (mobile only) */
+    /* Hamburger — circular button, always visible on the right like the reference */
     .nav-burger {
-      display: none;
-      flex-direction: column; gap: 5px;
-      background: none; border: none; cursor: pointer; padding: 4px;
+      display: flex;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px;
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--offwhite);
+      border: 1px solid rgba(27,42,74,0.08);
+      cursor: pointer; flex-shrink: 0;
+      transition: background .2s, border-color .2s;
     }
+    .nav-burger:hover { background: rgba(57,224,0,0.1); border-color: rgba(57,224,0,0.3); }
     .nav-burger span {
-      display: block; width: 24px; height: 2px;
+      display: block; width: 18px; height: 2px;
       background: var(--navy); border-radius: 2px;
       transition: transform .25s, opacity .25s;
     }
+    .nav-burger.active span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-burger.active span:nth-child(2) { opacity: 0; }
+    .nav-burger.active span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
 
     /* Mobile drawer */
     .nav-drawer {
       display: none;
-      position: fixed; top: var(--nav-h); left: 0; right: 0;
+      position: fixed; top: var(--nav-h); left: 16px; right: 16px;
       background: white;
-      border-bottom: 1px solid rgba(27,42,74,0.1);
-      padding: 16px 24px 24px;
+      border-radius: 20px;
+      border: 1px solid rgba(27,42,74,0.08);
+      box-shadow: 0 16px 40px rgba(13,26,46,0.15);
+      padding: 12px 22px 18px;
       z-index: 199;
       flex-direction: column; gap: 0;
     }
@@ -131,9 +157,9 @@
     }
     .nav-drawer a:hover { color: var(--green2); }
     .nav-drawer .drawer-cta {
-      margin-top: 16px;
+      margin-top: 14px;
       background: var(--green); color: var(--navy);
-      text-align: center; border-radius: 8px; padding: 14px;
+      text-align: center; border-radius: 999px; padding: 14px;
       font-weight: 700; font-size: 1rem;
       border-bottom: none;
     }
@@ -148,6 +174,23 @@
       padding: calc(var(--nav-h) + 56px) 6% 72px;
       gap: 5%;
       position: relative; overflow: hidden;
+    }
+
+    /* Background silhouette — person holding phone, hero accent */
+    .hero-person {
+      position: absolute;
+      right: 2%;
+      bottom: 0;
+      width: clamp(220px, 28vw, 420px);
+      opacity: 0.10;
+      pointer-events: none;
+      z-index: 0;
+      filter: drop-shadow(0 0 40px rgba(57,224,0,0.15));
+    }
+    .hero-person svg { width: 100%; height: auto; display: block; }
+
+    @media (max-width: 768px) {
+      .hero-person { display: none; }
     }
     .hero::before {
       content: '';
@@ -328,6 +371,98 @@
     .coin-trx  { --sa: 150deg; animation: orbit5 15s linear infinite; }
     .coin-usdt { --sa: 260deg; animation: orbit6 17s linear infinite reverse; }
     .spin-icon { animation: spin-arrows 4s linear infinite; }
+
+
+    /* ══════════════════════════════════════
+       HERO FLOATING UI CARDS
+    ══════════════════════════════════════ */
+    .hero-visual { position: relative; }
+
+    .float-badge {
+      position: absolute;
+      top: 6%; left: 2%;
+      background: white;
+      border-radius: 999px;
+      padding: 10px 20px 10px 8px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      z-index: 4;
+      animation: float-badge 4s ease-in-out infinite;
+    }
+    .float-badge .badge-check {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .float-badge .badge-check svg { width: 16px; height: 16px; }
+    .float-badge .badge-text {
+      font-weight: 700; font-size: 0.95rem; color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .float-card {
+      position: absolute;
+      bottom: 2%; left: -2%;
+      background: rgba(255,255,255,0.97);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.3);
+      z-index: 4;
+      width: 200px;
+      animation: float-card 5s ease-in-out infinite;
+    }
+    .float-card .float-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 7px 4px;
+      border-radius: 8px;
+    }
+    .float-card .float-row + .float-row { margin-top: 2px; }
+    .float-coin-info { display: flex; align-items: center; gap: 8px; }
+    .float-coin-info .fc-dot {
+      width: 22px; height: 22px; border-radius: 50%;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    }
+    .float-coin-info .fc-dot svg { width: 100%; height: 100%; }
+    .float-coin-info span { font-size: 0.78rem; font-weight: 700; color: var(--navy); }
+    .float-row .fc-check {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--green);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .float-row .fc-check svg { width: 9px; height: 9px; }
+
+    .float-swoosh {
+      position: absolute;
+      top: 38%; left: -2%;
+      width: 104%;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+    .float-swoosh svg { width: 100%; height: auto; display: block; }
+
+    @keyframes float-badge {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+    @keyframes float-card {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(8px); }
+    }
+
+    @media (max-width: 1024px) {
+      .float-badge { left: -2%; }
+      .float-card  { left: -4%; width: 180px; }
+    }
+    @media (max-width: 768px) {
+      .float-badge, .float-card, .float-swoosh { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .float-badge, .float-card { animation: none; }
+    }
 
     /* ══════════════════════════════════════
        TICKER
@@ -554,25 +689,53 @@
     .contact-inner { max-width: 860px; margin: 0 auto; text-align: center; }
     .contact-inner .section-title { margin-bottom: 10px; }
     .contact-inner > p { color: var(--gray); margin-bottom: 36px; font-size: clamp(0.88rem, 1.5vw, 1rem); line-height: 1.7; }
-    .contact-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
-    .contact-card {
-      background: white; border-radius: 14px;
-      padding: clamp(24px, 3vw, 32px) clamp(24px, 3.5vw, 36px);
-      border: 1px solid rgba(27,42,74,0.1);
-      display: flex; flex-direction: column; align-items: center; gap: 12px;
-      text-decoration: none; color: var(--navy);
-      transition: box-shadow .2s, transform .2s, border-color .2s;
-      flex: 1; min-width: 200px; max-width: 280px;
+    /* Vertically stacked, circular, icon-only contact buttons —
+       WhatsApp and Email sit opposite each other on a connecting line */
+    .contact-cards {
+      display: flex; flex-direction: column; align-items: center;
+      gap: 28px; position: relative;
+      padding: 8px 0;
     }
-    .contact-card:hover { border-color: var(--green); box-shadow: 0 8px 28px rgba(57,224,0,0.12); transform: translateY(-3px); }
+    .contact-cards::before {
+      /* connecting line between the two circles */
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 2px; height: calc(100% - 88px);
+      background: repeating-linear-gradient(
+        to bottom, rgba(27,42,74,0.15) 0 6px, transparent 6px 12px
+      );
+      transform: translate(-50%, -50%);
+      z-index: 0;
+    }
+    .contact-card {
+      width: 88px; height: 88px;
+      background: white; border-radius: 50%;
+      border: 1px solid rgba(27,42,74,0.1);
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; color: var(--navy);
+      box-shadow: 0 6px 20px rgba(27,42,74,0.08);
+      transition: box-shadow .2s, transform .2s, border-color .2s;
+      position: relative; z-index: 1;
+      flex-shrink: 0;
+    }
+    .contact-card:hover {
+      border-color: var(--green);
+      box-shadow: 0 10px 30px rgba(57,224,0,0.18);
+      transform: translateY(-3px) scale(1.04);
+    }
     .cc-icon {
-      width: 54px; height: 54px; border-radius: 14px;
+      width: 38px; height: 38px;
       display: flex; align-items: center; justify-content: center;
     }
-    .cc-email    { background: rgba(27,42,74,0.08); }
-    .cc-whatsapp { background: rgba(37,211,102,0.12); }
-    .contact-card h3 { font-size: 0.98rem; font-weight: 700; }
-    .contact-card p  { font-size: 0.82rem; color: var(--gray); text-align: center; line-height: 1.55; }
+    .cc-icon svg { width: 100%; height: 100%; }
+    .cc-label {
+      position: absolute;
+      bottom: -22px; left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--gray); white-space: nowrap;
+    }
 
     /* ══════════════════════════════════════
        FAQ
@@ -630,12 +793,13 @@
 
     /* ── TABLET (481–768px) ── */
     @media (max-width: 768px) {
-      :root { --nav-h: 58px; }
+      :root { --nav-h: 72px; --nav-pill-h: 58px; }
 
-      nav { padding: 0 20px; }
+      .nav-wrap { padding: 12px 16px 0; }
+      nav { padding: 0 8px 0 16px; }
       .nav-links { display: none; }
-      .nav-burger { display: flex; }
       .nav-cta { display: none; } /* shown in drawer instead */
+      .nav-tagline { display: none; } /* save space on mobile */
 
       .hero {
         flex-direction: column;
@@ -688,9 +852,6 @@
       .store-buttons { justify-content: center; }
       .phones-visual { min-height: 260px; }
 
-      .contact-cards { flex-direction: column; align-items: center; }
-      .contact-card { max-width: 340px; width: 100%; }
-
       footer {
         flex-direction: column; align-items: flex-start; gap: 14px;
       }
@@ -698,9 +859,10 @@
 
     /* ── SMALL PHONE (max 480px) ── */
     @media (max-width: 480px) {
-      :root { --nav-h: 54px; }
+      :root { --nav-h: 68px; --nav-pill-h: 54px; }
 
-      nav { padding: 0 16px; }
+      .nav-wrap { padding: 10px 12px 0; }
+      nav { padding: 0 6px 0 14px; }
 
       .hero {
         padding: calc(var(--nav-h) + 32px) 16px 48px;
@@ -751,7 +913,8 @@
       .store-buttons { flex-direction: column; align-items: stretch; }
       .store-btn { justify-content: center; }
 
-      .contact-card { padding: 22px 20px; }
+      .contact-card { width: 76px; height: 76px; }
+      .cc-icon { width: 32px; height: 32px; }
 
       footer { gap: 12px; }
       .footer-links { gap: 14px; }
@@ -759,7 +922,8 @@
 
     /* ── SMALL LAPTOP (769–1024px) ── */
     @media (min-width: 769px) and (max-width: 1024px) {
-      nav { padding: 0 32px; }
+      .nav-wrap { padding: 14px 24px 0; }
+      nav { padding: 0 10px 0 24px; }
       .nav-links { gap: 18px; }
       .hero { padding: calc(var(--nav-h) + 48px) 5% 72px; gap: 4%; }
     }
@@ -826,31 +990,109 @@
       }
       .toast.show { transform: translateY(0); }
     }
+
+    /* ══════════════════════════════════════
+       PAGE LOADER
+    ══════════════════════════════════════ */
+    #pageLoader {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, var(--dark) 0%, var(--navy) 60%, #1e3a5f 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+    #pageLoader.loaded {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .loader-logo {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .loader-logo span {
+      font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+      font-size: 2.2rem; font-weight: 700;
+    }
+    .loader-logo span.s { color: white; }
+    .loader-logo span.q { color: var(--green); }
+
+    /* 5-dot sequential pulse — same rhythm as reference,
+       recolored across a navy→green gradient to match brand */
+    .loader-dots {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .loader-dots span {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+      animation: dot-pulse 1.2s ease-in-out infinite;
+    }
+    .loader-dots span:nth-child(1) { background: #3B82C4; animation-delay: 0s; }
+    .loader-dots span:nth-child(2) { background: #2DAF6E; animation-delay: 0.12s; }
+    .loader-dots span:nth-child(3) { background: var(--green); animation-delay: 0.24s; }
+    .loader-dots span:nth-child(4) { background: #2DAF6E; animation-delay: 0.36s; }
+    .loader-dots span:nth-child(5) { background: #3B82C4; animation-delay: 0.48s; }
+
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40%            { transform: scale(1); opacity: 1; }
+    }
+
+    /* Prevent scroll while loader is visible */
+    body.loading { overflow: hidden; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .loader-dots span { animation: none; opacity: 1; transform: scale(0.85); }
+    }
   </style>
 </head>
-<body>
+<body class="loading">
+
+<!-- PAGE LOADER -->
+<div id="pageLoader" role="status" aria-label="Loading SwapQ">
+  <div class="loader-logo">
+    <span class="s">Swap</span><span class="q">Q</span>
+  </div>
+  <div class="loader-dots" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+</div>
 
 <!-- NAV -->
+<div class="nav-wrap">
 <nav aria-label="Main navigation">
   <a class="nav-logo" href="#">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <circle cx="16" cy="16" r="14" stroke="#39E000" stroke-width="2.5"/>
       <path d="M10 19l6-6 6 6" stroke="#1B2A4A" stroke-width="2.5" stroke-linecap="round"/>
       <path d="M22 13l-6 6-6-6" stroke="#39E000" stroke-width="2" stroke-linecap="round" opacity=".6"/>
     </svg>
-    <span class="swap">Swap</span><span class="q">Q</span>
+    <span class="nav-logo-text">
+      <span class="nav-wordmark"><span class="swap">Swap</span><span class="q">Q</span></span>
+      <span class="nav-tagline">Fast, Easy &amp; Secure</span>
+    </span>
   </a>
-  <ul class="nav-links">
-    <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#coins">Coins</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#faq">FAQ</a></li>
-  </ul>
-  <a href="#contact" class="nav-cta">Start Swapping</a>
-  <button type="button" class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="#how-it-works">How It Works</a></li>
+      <li><a href="#coins">Coins</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a href="#contact" class="nav-cta">Start Swapping</a>
+    <button type="button" class="nav-burger" id="burgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </nav>
+</div>
 
 <!-- MOBILE DRAWER -->
 <nav class="nav-drawer" id="navDrawer" aria-label="Mobile navigation">
@@ -863,8 +1105,27 @@
 
 <!-- HERO -->
 <section class="hero">
+  <!-- Background accent: person holding phone (custom SVG, brand-styled) -->
+  <div class="hero-person" aria-hidden="true">
+    <svg viewBox="0 0 300 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body silhouette -->
+      <path d="M150 60c-22 0-40 18-40 40 0 17 10 32 24 38-32 10-56 38-60 72l-10 180c-1 8 5 15 13 15h146c8 0 14-7 13-15l-10-180c-4-34-28-62-60-72 14-6 24-21 24-38 0-22-18-40-40-40z"
+            fill="#39E000" opacity="0.5"/>
+      <!-- Raised arm holding phone -->
+      <path d="M205 150c18 8 32 24 38 44l14 56c2 9-4 17-13 18-8 1-15-5-17-13l-13-52c-3-11-11-20-21-25z"
+            fill="#39E000" opacity="0.5"/>
+      <!-- Phone in hand -->
+      <rect x="225" y="120" width="46" height="82" rx="8" fill="#1B2A4A" stroke="#39E000" stroke-width="3"/>
+      <rect x="233" y="132" width="30" height="54" rx="2" fill="#39E000" opacity="0.3"/>
+      <circle cx="248" cy="195" r="3" fill="#39E000"/>
+      <!-- Subtle swap arrows on phone screen -->
+      <path d="M239 150h18M252 146l5 4-5 4M243 162h-18M236 158l-5 4 5 4"
+            stroke="#39E000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
   <div class="hero-text">
-    <div class="hero-eyebrow">⚡ Swap Quickly</div>
+    <div class="hero-eyebrow">Swap Quickly</div>
     <h1>
       Exchange Crypto<br>
       <span class="sr-only" id="cycleLabel" aria-live="polite" aria-atomic="true">Fast &amp; Easy</span><span class="word-cycle-wrap" id="wordCycle" aria-hidden="true">
@@ -882,6 +1143,22 @@
   </div>
 
   <div class="hero-visual" aria-hidden="true">
+    <!-- Floating value badge -->
+    <div class="float-badge">
+      <span class="badge-check">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1B2A4A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="badge-text">$1,000 Swapped</span>
+    </div>
+
+    <!-- Decorative swoosh -->
+    <div class="float-swoosh">
+      <svg viewBox="0 0 400 120" fill="none">
+        <path d="M10 30c60 60 180 90 280 50s90-90 100-70" stroke="#39E000" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+        <path d="M20 50c50 40 150 60 240 30" stroke="#39E000" stroke-width="2.5" stroke-linecap="round" opacity="0.4"/>
+      </svg>
+    </div>
+
     <div class="orbit-scene">
       <div class="orbit-ring orbit-ring-1"></div>
       <div class="orbit-ring orbit-ring-2"></div>
@@ -938,7 +1215,32 @@
       </div>
       <!-- USDT -->
       <div class="coin coin-usdt">
-        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M17.9 17.4v-.01c-.1 0-.7.05-1.9.05-1 0-1.6-.03-1.9-.05v.01c-3.2-.14-5.6-.7-5.6-1.37 0-.67 2.4-1.23 5.6-1.38v2.2c.3.02.9.06 1.9.06 1.1 0 1.7-.05 1.9-.06v-2.2c3.1.15 5.5.71 5.5 1.38 0 .67-2.4 1.23-5.5 1.37zm0-2.97v-1.97h4.4V9.5H9.8v2.96h4.4v1.97c-3.6.16-6.3.86-6.3 1.7 0 .83 2.7 1.53 6.3 1.7v6.07h2v-6.07c3.6-.17 6.3-.87 6.3-1.7 0-.84-2.7-1.54-6.3-1.7z"/></svg>
+        <svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M9 10h14v3.2h-5.3v2.1c3.6.2 6.3.9 6.3 1.8s-2.7 1.6-6.3 1.8V24h-3v-5.1c-3.6-.2-6.3-.9-6.3-1.8s2.7-1.6 6.3-1.8v-2.1H9V10zm2.8 5.6c-2.1.2-3.5.6-3.5 1s1.4.8 3.5 1c1 .1 2.1.1 3.2.1s2.2 0 3.2-.1c2.1-.2 3.5-.6 3.5-1s-1.4-.8-3.5-1c-1-.1-2.1-.1-3.2-.1s-2.2 0-3.2.1z"/></svg>
+      </div>
+    </div>
+
+    <!-- Floating coins-confirmed card -->
+    <div class="float-card">
+      <div class="float-row">
+        <span class="float-coin-info">
+          <span class="fc-dot"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M9 10h14v3.2h-5.3v2.1c3.6.2 6.3.9 6.3 1.8s-2.7 1.6-6.3 1.8V24h-3v-5.1c-3.6-.2-6.3-.9-6.3-1.8s2.7-1.6 6.3-1.8v-2.1H9V10zm2.8 5.6c-2.1.2-3.5.6-3.5 1s1.4.8 3.5 1c1 .1 2.1.1 3.2.1s2.2 0 3.2-.1c2.1-.2 3.5-.6 3.5-1s-1.4-.8-3.5-1c-1-.1-2.1-.1-3.2-.1s-2.2 0-3.2.1z"/></svg></span>
+          <span>USDT</span>
+        </span>
+        <span class="fc-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1B2A4A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="float-row">
+        <span class="float-coin-info">
+          <span class="fc-dot"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#fff"/><path fill="#343434" d="M16.2 4 16 4.5v15.2l.2.2 8-4.7z"/><path fill="#8C8C8C" d="M16.2 4 8 15.2l8.2 4.7V4z"/><path fill="#3C3C3B" d="M16.2 21.6l-.1.2v6.4l.1.3 8.1-11.4z"/><path fill="#8C8C8C" d="M16.2 28.5v-6.9L8 17.1z"/><path fill="#141414" d="M16.2 19.9l8-4.7-8-3.6z"/><path fill="#393939" d="M8 15.2l8.2 4.7v-8.3z"/></svg></span>
+          <span>Ethereum</span>
+        </span>
+        <span class="fc-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1B2A4A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="float-row">
+        <span class="float-coin-info">
+          <span class="fc-dot"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#F7931A"/><path fill="#fff" d="M22.5 14.2c.3-2.1-1.3-3.2-3.5-3.9l.7-2.9-1.8-.4-.7 2.8c-.5-.1-1-.2-1.4-.3l.7-2.8-1.8-.4-.7 2.9c-.4-.1-.8-.2-1.1-.3l-2.5-.6-.5 2s1.3.3 1.3.3c.7.2.8.6.8 1l-.8 3.2c.1 0 .1 0 .2.1h-.2l-1.1 4.5c-.1.2-.3.5-.8.4 0 0-1.3-.3-1.3-.3l-.9 2.1 2.4.6c.4.1.9.2 1.3.4l-.7 3 1.8.4.7-2.9c.5.1 1 .2 1.4.3l-.7 2.9 1.8.4.7-3c3.1.6 5.4.3 6.4-2.4.8-2.2 0-3.4-1.6-4.2 1.1-.3 2-1 2.2-2.5zm-4.1 5.7c-.6 2.2-4.4 1-5.6.7l1-4c1.2.3 5.2.9 4.6 3.3zm.6-5.7c-.5 2-3.8 1-4.7.8l.9-3.6c1 .2 4.3.7 3.8 2.8z"/></svg></span>
+          <span>Bitcoin</span>
+        </span>
+        <span class="fc-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#1B2A4A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </div>
     </div>
   </div>
@@ -1031,7 +1333,7 @@
         <h4>TRON</h4><span>TRX</span>
       </div>
       <div class="coin-card">
-        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M17.9 17.4v-.01c-.1 0-.7.05-1.9.05-1 0-1.6-.03-1.9-.05v.01c-3.2-.14-5.6-.7-5.6-1.37 0-.67 2.4-1.23 5.6-1.38v2.2c.3.02.9.06 1.9.06 1.1 0 1.7-.05 1.9-.06v-2.2c3.1.15 5.5.71 5.5 1.38 0 .67-2.4 1.23-5.5 1.37zm0-2.97v-1.97h4.4V9.5H9.8v2.96h4.4v1.97c-3.6.16-6.3.86-6.3 1.7 0 .83 2.7 1.53 6.3 1.7v6.07h2v-6.07c3.6-.17 6.3-.87 6.3-1.7 0-.84-2.7-1.54-6.3-1.7z"/></svg></div>
+        <div class="coin-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#26A17B"/><path fill="#fff" d="M9 10h14v3.2h-5.3v2.1c3.6.2 6.3.9 6.3 1.8s-2.7 1.6-6.3 1.8V24h-3v-5.1c-3.6-.2-6.3-.9-6.3-1.8s2.7-1.6 6.3-1.8v-2.1H9V10zm2.8 5.6c-2.1.2-3.5.6-3.5 1s1.4.8 3.5 1c1 .1 2.1.1 3.2.1s2.2 0 3.2-.1c2.1-.2 3.5-.6 3.5-1s-1.4-.8-3.5-1c-1-.1-2.1-.1-3.2-.1s-2.2 0-3.2.1z"/></svg></div>
         <h4>USDT</h4><span>TRC20 / ERC20</span>
       </div>
       <div class="coin-card">
@@ -1106,24 +1408,22 @@
     <h2 class="section-title">Ready to Swap?</h2>
     <p>Reach out directly. We respond fast. Whether you have a question, need a quote, or are ready to swap — our team is standing by.</p>
     <div class="contact-cards">
-      <a href="mailto:support@swapquickly.com" class="contact-card">
-        <div class="cc-icon cc-email">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <a href="https://wa.me/2348000000000" class="contact-card" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+        <div class="cc-icon">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.89.52 3.66 1.43 5.18L2 22l4.95-1.4A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-1.2 5.5c-.3-.7-.6-.72-.87-.73l-.74-.01c-.26 0-.67.1-1.02.48-.35.39-1.34 1.31-1.34 3.18 0 1.88 1.37 3.69 1.56 3.95.19.26 2.65 4.23 6.53 5.76 3.22 1.27 3.88 1.02 4.58.95.7-.06 2.26-.92 2.58-1.82.32-.89.32-1.66.22-1.82-.1-.16-.36-.26-.76-.45-.39-.2-2.29-1.13-2.64-1.26-.36-.13-.62-.19-.88.2-.26.39-1 1.26-1.23 1.52-.22.26-.45.29-.84.1-.39-.2-1.65-.61-3.14-1.94-1.16-1.04-1.94-2.32-2.17-2.71-.22-.39-.02-.6.17-.79.17-.17.39-.45.58-.68.2-.22.26-.39.39-.65.13-.26.06-.49-.03-.68z" fill="#25D366"/>
+          </svg>
+        </div>
+        <span class="cc-label">WhatsApp</span>
+      </a>
+      <a href="mailto:support@swapquickly.com" class="contact-card" aria-label="Email us">
+        <div class="cc-icon">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="2" y="4" width="20" height="16" rx="3" stroke="#1B2A4A" stroke-width="1.8"/>
             <path d="M2 7l10 7 10-7" stroke="#1B2A4A" stroke-width="1.8" stroke-linecap="round"/>
           </svg>
         </div>
-        <h3>Email Support</h3>
-        <p>support@swapquickly.com<br>We reply within a few hours</p>
-      </a>
-      <a href="https://wa.me/2348000000000" class="contact-card" target="_blank" rel="noopener noreferrer">
-        <div class="cc-icon cc-whatsapp">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.89.52 3.66 1.43 5.18L2 22l4.95-1.4A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-1.2 5.5c-.3-.7-.6-.72-.87-.73l-.74-.01c-.26 0-.67.1-1.02.48-.35.39-1.34 1.31-1.34 3.18 0 1.88 1.37 3.69 1.56 3.95.19.26 2.65 4.23 6.53 5.76 3.22 1.27 3.88 1.02 4.58.95.7-.06 2.26-.92 2.58-1.82.32-.89.32-1.66.22-1.82-.1-.16-.36-.26-.76-.45-.39-.2-2.29-1.13-2.64-1.26-.36-.13-.62-.19-.88.2-.26.39-1 1.26-1.23 1.52-.22.26-.45.29-.84.1-.39-.2-1.65-.61-3.14-1.94-1.16-1.04-1.94-2.32-2.17-2.71-.22-.39-.02-.6.17-.79.17-.17.39-.45.58-.68.2-.22.26-.39.39-.65.13-.26.06-.49-.03-.68z" fill="#25D366"/>
-          </svg>
-        </div>
-        <h3>WhatsApp Us</h3>
-        <p>Chat directly on WhatsApp<br>Fastest way to get a quote</p>
+        <span class="cc-label">Email</span>
       </a>
     </div>
   </div>
@@ -1184,6 +1484,21 @@
 
 <script>
 
+
+  /* ── PAGE LOADER ──
+     Hides the loading screen once the page (including
+     fonts/images) has fully loaded. A small minimum
+     delay is added so the loader doesn't just "flash"
+     on fast connections. */
+  window.addEventListener('load', function () {
+    var loader = document.getElementById('pageLoader');
+    var minDelay = 600; // ms — feels intentional, not flashy
+    setTimeout(function () {
+      if (loader) loader.classList.add('loaded');
+      document.body.classList.remove('loading');
+    }, minDelay);
+  });
+
   /* ── COMING SOON TOAST ──
      NOTE FOR LATER: once the real App Store / Google Play
      links are ready, remove the onclick="showComingSoon(...)"
@@ -1210,6 +1525,7 @@
 
   burger.addEventListener('click', function () {
     var isOpen = drawer.classList.toggle('open');
+    burger.classList.toggle('active', isOpen);
     burger.setAttribute('aria-expanded', isOpen);
   });
 
@@ -1217,6 +1533,7 @@
   drawer.querySelectorAll('a').forEach(function (link) {
     link.addEventListener('click', function () {
       drawer.classList.remove('open');
+      burger.classList.remove('active');
       burger.setAttribute('aria-expanded', 'false');
     });
   });
