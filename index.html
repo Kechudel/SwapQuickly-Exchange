@@ -59,7 +59,7 @@
       display: flex; justify-content: center;
       pointer-events: none; /* wrapper itself doesn't block clicks, nav does */
     }
-    nav {
+    .main-nav {
       pointer-events: auto;
       width: 100%; max-width: 1240px;
       height: var(--nav-pill-h);
@@ -71,7 +71,7 @@
       border: 1px solid rgba(27,42,74,0.06);
     }
     @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-      nav {
+      .main-nav {
         background: rgba(255,255,255,0.92);
         -webkit-backdrop-filter: blur(14px);
         backdrop-filter: blur(14px);
@@ -202,15 +202,6 @@
 
     .hero-text { flex: 1; max-width: 580px; z-index: 1; min-width: 0; }
 
-    .hero-eyebrow {
-      display: inline-block;
-      background: rgba(57,224,0,0.15); color: var(--green);
-      border: 1px solid rgba(57,224,0,0.3);
-      border-radius: 4px; padding: 4px 14px;
-      font-size: 0.75rem; font-weight: 600; letter-spacing: .1em;
-      text-transform: uppercase; margin-bottom: 18px;
-    }
-
     .hero h1 {
       font-family: 'Rajdhani', 'Segoe UI', sans-serif;
       font-size: clamp(2rem, 4.5vw, 3.8rem);
@@ -219,27 +210,26 @@
       margin-bottom: 20px;
     }
 
-    /* ── WORD CYCLE ── */
-    .word-cycle-wrap {
+    /* ── TYPEWRITER (backspace-and-retype effect) ── */
+    .typewriter-wrap {
       display: block;
-      position: relative;
-      height: 1.15em;
-      overflow: hidden;
-      width: 100%;
-    }
-    .word-cycle-wrap .word {
-      display: block;
-      position: absolute; left: 0; top: 0;
-      width: 100%;
       color: var(--green);
-      opacity: 0;
-      transform: translateY(36px);
-      transition: opacity 0.4s ease, transform 0.4s ease;
       line-height: 1.15;
+      min-height: 1.15em;
+    }
+    .typewriter {
       white-space: nowrap;
     }
-    .word-cycle-wrap .word.active  { opacity: 1; transform: translateY(0); }
-    .word-cycle-wrap .word.exit    { opacity: 0; transform: translateY(-36px); }
+    .typewriter-cursor {
+      display: inline-block;
+      margin-left: 2px;
+      animation: cursor-blink 0.9s step-end infinite;
+      font-weight: 400;
+    }
+    @keyframes cursor-blink {
+      0%, 50%  { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
 
     .hero p {
       font-size: clamp(0.92rem, 2vw, 1.05rem);
@@ -254,10 +244,12 @@
       background: var(--green); color: var(--navy);
       padding: 13px 28px; border-radius: 7px;
       font-weight: 700; font-size: clamp(0.88rem, 2vw, 1rem);
-      text-decoration: none; display: inline-block;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 10px;
       transition: background .2s, transform .15s;
       white-space: nowrap;
     }
+    .btn-primary svg { width: 19px; height: 19px; flex-shrink: 0; }
     .btn-primary:hover { background: var(--green2); transform: translateY(-2px); }
 
     .btn-secondary {
@@ -265,11 +257,14 @@
       padding: 13px 28px; border-radius: 7px;
       border: 1.5px solid rgba(255,255,255,0.3);
       font-weight: 600; font-size: clamp(0.88rem, 2vw, 1rem);
-      text-decoration: none; display: inline-block;
+      text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       transition: border-color .2s, background .2s;
       white-space: nowrap;
     }
+    .btn-secondary svg { width: 16px; height: 16px; flex-shrink: 0; transition: transform .2s; }
     .btn-secondary:hover { border-color: var(--green); background: rgba(57,224,0,0.07); }
+    .btn-secondary:hover svg { transform: translateX(3px); }
 
     /* ── ORBIT ── */
     .hero-visual {
@@ -697,7 +692,7 @@
       padding: 8px 0;
     }
     .contact-cards::before {
-      /* connecting line between the two circles */
+      /* connecting line between stacked circles — disabled when there's only one button */
       content: '';
       position: absolute;
       top: 50%; left: 50%;
@@ -707,6 +702,16 @@
       );
       transform: translate(-50%, -50%);
       z-index: 0;
+    }
+    .contact-cards--single::before { display: none; }
+    .contact-cards--single .contact-card {
+      width: 100px; height: 100px;
+      background: transparent;
+      border: none;
+      box-shadow: 0 10px 28px rgba(37,211,102,0.35);
+    }
+    .contact-cards--single .cc-icon {
+      width: 100%; height: 100%;
     }
     .contact-card {
       width: 88px; height: 88px;
@@ -720,15 +725,14 @@
       flex-shrink: 0;
     }
     .contact-card:hover {
-      border-color: var(--green);
-      box-shadow: 0 10px 30px rgba(57,224,0,0.18);
+      box-shadow: 0 12px 32px rgba(37,211,102,0.45);
       transform: translateY(-3px) scale(1.04);
     }
     .cc-icon {
       width: 38px; height: 38px;
       display: flex; align-items: center; justify-content: center;
     }
-    .cc-icon svg { width: 100%; height: 100%; }
+    .cc-icon svg { width: 100%; height: 100%; display: block; border-radius: 50%; }
     .cc-label {
       position: absolute;
       bottom: -22px; left: 50%;
@@ -782,9 +786,8 @@
     .footer-brand span.s { color: white; }
     .footer-brand span.q { color: var(--green); }
     footer > p { color: rgba(255,255,255,0.38); font-size: 0.8rem; }
-    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
-    .footer-links a { color: rgba(255,255,255,0.48); font-size: 0.8rem; text-decoration: none; transition: color .2s; }
-    .footer-links a:hover { color: var(--green); }
+    .footer-email { color: rgba(255,255,255,0.55); font-size: 0.82rem; text-decoration: none; transition: color .2s; }
+    .footer-email:hover { color: var(--green); }
 
 
     /* ══════════════════════════════════════
@@ -796,7 +799,7 @@
       :root { --nav-h: 72px; --nav-pill-h: 58px; }
 
       .nav-wrap { padding: 12px 16px 0; }
-      nav { padding: 0 8px 0 16px; }
+      .main-nav { padding: 0 8px 0 16px; }
       .nav-links { display: none; }
       .nav-cta { display: none; } /* shown in drawer instead */
       .nav-tagline { display: none; } /* save space on mobile */
@@ -810,7 +813,6 @@
       .hero-text { max-width: 100%; }
       .hero p { margin-left: auto; margin-right: auto; max-width: 480px; }
       .hero-actions { justify-content: center; }
-      .word-cycle-wrap .word { white-space: normal; }
 
       .orbit-scene {
         width: clamp(220px, 70vw, 300px);
@@ -862,17 +864,16 @@
       :root { --nav-h: 68px; --nav-pill-h: 54px; }
 
       .nav-wrap { padding: 10px 12px 0; }
-      nav { padding: 0 6px 0 14px; }
+      .main-nav { padding: 0 6px 0 14px; }
 
       .hero {
         padding: calc(var(--nav-h) + 32px) 16px 48px;
         gap: 32px;
       }
-      .hero-eyebrow { font-size: 0.68rem; }
 
       .btn-primary, .btn-secondary {
         padding: 12px 20px;
-        width: 100%; text-align: center; display: block;
+        width: 100%; justify-content: center;
       }
       .hero-actions { flex-direction: column; gap: 10px; }
 
@@ -913,17 +914,16 @@
       .store-buttons { flex-direction: column; align-items: stretch; }
       .store-btn { justify-content: center; }
 
-      .contact-card { width: 76px; height: 76px; }
-      .cc-icon { width: 32px; height: 32px; }
+      .contact-cards--single .contact-card { width: 84px; height: 84px; }
+      .contact-cards--single .cc-icon { width: 100%; height: 100%; }
 
       footer { gap: 12px; }
-      .footer-links { gap: 14px; }
     }
 
     /* ── SMALL LAPTOP (769–1024px) ── */
     @media (min-width: 769px) and (max-width: 1024px) {
       .nav-wrap { padding: 14px 24px 0; }
-      nav { padding: 0 10px 0 24px; }
+      .main-nav { padding: 0 10px 0 24px; }
       .nav-links { gap: 18px; }
       .hero { padding: calc(var(--nav-h) + 48px) 5% 72px; gap: 4%; }
     }
@@ -937,12 +937,11 @@
     /* ── REDUCED MOTION ── */
     @media (prefers-reduced-motion: reduce) {
       .coin, .spin-icon, .phone-main, .ticker-track,
-      .word-cycle-wrap .word { animation: none !important; transition: none !important; }
+      .typewriter-cursor { animation: none !important; transition: none !important; }
       /* With animation removed, fall back cleanly to centered position
          instead of a frozen mid-orbit diagonal scatter */
       .coin { transform: translate(-50%, -50%) !important; }
-      .word-cycle-wrap .word.active { opacity: 1; transform: none; }
-      .word-cycle-wrap .word:not(.active) { display: none; }
+      .typewriter-cursor { opacity: 1; }
     }
 
     /* ══════════════════════════════════════
@@ -1067,7 +1066,7 @@
 
 <!-- NAV -->
 <div class="nav-wrap">
-<nav aria-label="Main navigation">
+<nav class="main-nav" aria-label="Main navigation">
   <a class="nav-logo" href="#">
     <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
       <circle cx="16" cy="16" r="14" stroke="#39E000" stroke-width="2.5"/>
@@ -1125,20 +1124,24 @@
   </div>
 
   <div class="hero-text">
-    <div class="hero-eyebrow">Swap Quickly</div>
     <h1>
-      Exchange Crypto<br>
-      <span class="sr-only" id="cycleLabel" aria-live="polite" aria-atomic="true">Fast &amp; Easy</span><span class="word-cycle-wrap" id="wordCycle" aria-hidden="true">
-        <span class="word active">Fast &amp; Easy</span>
-        <span class="word">Safe &amp; Secure</span>
-        <span class="word">Quick &amp; Simple</span>
-        <span class="word">Seamless</span>
-      </span><br>Transactions
+      Exchange Crypto Transactions<br>
+      <span class="sr-only" id="cycleLabel" aria-live="polite" aria-atomic="true">Fast &amp; Easy</span><span class="typewriter-wrap"><span class="typewriter" id="typewriter" aria-hidden="true">Fast &amp; Easy</span><span class="typewriter-cursor" aria-hidden="true">|</span></span>
     </h1>
     <p>SwapQ lets you instantly swap Bitcoin, Solana, Ethereum, USDT and more — across blockchains, with zero stress. Your rate. Your speed. Your swap.</p>
     <div class="hero-actions">
-      <a href="#contact" class="btn-primary">Swap Now via WhatsApp</a>
-      <a href="#how-it-works" class="btn-secondary">See How It Works</a>
+      <a href="https://wa.me/2348108256416" class="btn-primary" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <path fill="currentColor" d="M16 2.7C8.7 2.7 2.7 8.6 2.7 16c0 2.6.7 5 2 7.1L3 29.3l6.4-1.7c2 1.1 4.3 1.7 6.6 1.7 7.3 0 13.3-5.9 13.3-13.3S23.3 2.7 16 2.7zm0 24.2c-2.1 0-4.1-.6-5.8-1.6l-.4-.2-4.3 1.1 1.2-4.2-.3-.4c-1.2-1.8-1.8-3.9-1.8-6.1 0-6.2 5-11.2 11.2-11.2s11.2 5 11.2 11.2S22.2 26.9 16 26.9zm6.1-8.4c-.3-.2-2-1-2.3-1.1-.3-.1-.5-.2-.8.2-.2.3-.9 1.1-1.1 1.3-.2.2-.4.2-.7.1-.3-.2-1.3-.5-2.4-1.5-.9-.8-1.5-1.8-1.7-2.1-.2-.3 0-.5.1-.7.1-.1.3-.4.5-.6.2-.2.2-.3.3-.5.1-.2.1-.4 0-.5-.1-.2-.7-1.8-1-2.4-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1.1 1.1-1.1 2.7s1.1 3.2 1.3 3.4c.2.2 2.2 3.5 5.4 4.7 2.6 1 3.2.9 3.8.8.6-.1 1.8-.7 2-1.5.3-.7.3-1.3.2-1.5-.1-.1-.3-.2-.6-.3z"/>
+        </svg>
+        Swap Now via WhatsApp
+      </a>
+      <a href="#how-it-works" class="btn-secondary">
+        See How It Works
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 6l6 6-6 6"/>
+        </svg>
+      </a>
     </div>
   </div>
 
@@ -1407,23 +1410,15 @@
     <div class="section-label">Get in Touch</div>
     <h2 class="section-title">Ready to Swap?</h2>
     <p>Reach out directly. We respond fast. Whether you have a question, need a quote, or are ready to swap — our team is standing by.</p>
-    <div class="contact-cards">
-      <a href="https://wa.me/2348000000000" class="contact-card" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
+    <div class="contact-cards contact-cards--single">
+      <a href="https://wa.me/2348108256416" class="contact-card" target="_blank" rel="noopener noreferrer" aria-label="Chat with us on WhatsApp">
         <div class="cc-icon">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 1.89.52 3.66 1.43 5.18L2 22l4.95-1.4A9.96 9.96 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-1.2 5.5c-.3-.7-.6-.72-.87-.73l-.74-.01c-.26 0-.67.1-1.02.48-.35.39-1.34 1.31-1.34 3.18 0 1.88 1.37 3.69 1.56 3.95.19.26 2.65 4.23 6.53 5.76 3.22 1.27 3.88 1.02 4.58.95.7-.06 2.26-.92 2.58-1.82.32-.89.32-1.66.22-1.82-.1-.16-.36-.26-.76-.45-.39-.2-2.29-1.13-2.64-1.26-.36-.13-.62-.19-.88.2-.26.39-1 1.26-1.23 1.52-.22.26-.45.29-.84.1-.39-.2-1.65-.61-3.14-1.94-1.16-1.04-1.94-2.32-2.17-2.71-.22-.39-.02-.6.17-.79.17-.17.39-.45.58-.68.2-.22.26-.39.39-.65.13-.26.06-.49-.03-.68z" fill="#25D366"/>
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="16" fill="#25D366"/>
+            <path fill="#fff" d="M21.7 10.3c-1.5-1.5-3.5-2.3-5.6-2.3-4.4 0-7.9 3.6-7.9 7.9 0 1.4.4 2.7 1 3.9l-1.1 4 4.1-1.1c1.1.6 2.4 1 3.8 1h0c4.4 0 7.9-3.6 7.9-7.9.1-2.1-.7-4.1-2.2-5.5zm-5.6 12.2h0c-1.2 0-2.4-.3-3.4-1l-.2-.1-2.6.7.7-2.5-.2-.3c-.7-1.1-1-2.3-1-3.6 0-3.6 3-6.6 6.6-6.6 1.8 0 3.4.7 4.7 1.9 1.2 1.2 1.9 2.9 1.9 4.7.1 3.7-2.9 6.8-6.5 6.8zm3.6-4.9c-.2-.1-1.2-.6-1.4-.6-.2-.1-.3-.1-.4.1-.1.2-.5.6-.6.7-.1.1-.2.1-.4.1-.1-.1-.6-.2-1.1-.7-.4-.4-.7-.9-.8-1-.1-.2 0-.3.1-.4.1-.1.2-.3.3-.4.1-.1.1-.2.2-.4 0-.1 0-.3 0-.4-.1-.1-.5-1.2-.7-1.6-.2-.4-.4-.3-.5-.3h-.4c-.1 0-.4 0-.6.3-.2.3-.8.8-.8 1.9 0 1.1.8 2.2 1 2.3.1.2 1.5 2.4 3.7 3.2 1.8.7 2.2.6 2.6.5.4-.1 1.2-.5 1.4-1 .2-.5.2-.9.1-1-.1-.1-.2-.1-.4-.2z"/>
           </svg>
         </div>
         <span class="cc-label">WhatsApp</span>
-      </a>
-      <a href="mailto:support@swapquickly.com" class="contact-card" aria-label="Email us">
-        <div class="cc-icon">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="2" y="4" width="20" height="16" rx="3" stroke="#1B2A4A" stroke-width="1.8"/>
-            <path d="M2 7l10 7 10-7" stroke="#1B2A4A" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <span class="cc-label">Email</span>
       </a>
     </div>
   </div>
@@ -1473,13 +1468,7 @@
     <span class="s">Swap</span><span class="q">Q</span>
   </a>
   <p>&copy; 2025 SwapQ &middot; Swap Quickly &middot; All rights reserved</p>
-  <nav class="footer-links" aria-label="Footer navigation">
-    <a href="#how-it-works">How It Works</a>
-    <a href="#coins">Coins</a>
-    <a href="#contact">Contact</a>
-    <a href="#faq">FAQ</a>
-    <a href="mailto:support@swapquickly.com">Email</a>
-  </nav>
+  <a href="mailto:support@swapquickly.com" class="footer-email">support@swapquickly.com</a>
 </footer>
 
 <script>
@@ -1538,32 +1527,55 @@
     });
   });
 
-  /* ── WORD CYCLING ── */
+  /* ── TYPEWRITER (backspace-and-retype effect) ── */
   (function () {
-    var wrap = document.getElementById('wordCycle');
-    if (!wrap) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var el = document.getElementById('typewriter');
+    var label = document.getElementById('cycleLabel');
+    if (!el) return;
 
-    var words = wrap.querySelectorAll('.word');
-    var current = 0;
+    var words = ['Fast & Easy', 'Safe & Secure', 'Quick & Simple', 'Seamless'];
+    var wordIndex = 0;
+    var charIndex = words[0].length; // starts fully typed (matches initial HTML content)
 
-    function setHeight() {
-      var active = wrap.querySelector('.word.active');
-      if (active) wrap.style.height = active.offsetHeight + 'px';
+    var TYPE_SPEED = 55;     // ms per character when typing
+    var DELETE_SPEED = 32;   // ms per character when deleting (a bit faster, like backspace)
+    var HOLD_TIME = 1800;    // ms to pause once a word is fully typed
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Show the first word statically, skip the animation entirely
+      el.textContent = words[0];
+      return;
     }
-    setHeight();
-    window.addEventListener('resize', setHeight);
 
-    setInterval(function () {
-      words[current].classList.remove('active');
-      words[current].classList.add('exit');
-      var prev = current;
-      current = (current + 1) % words.length;
-      words[current].classList.add('active');
-      var label = document.getElementById('cycleLabel');
-      if (label) label.textContent = words[current].textContent;
-      setTimeout(function () { words[prev].classList.remove('exit'); }, 500);
-    }, 2400);
+    function tick() {
+      var current = words[wordIndex];
+
+      if (charIndex < current.length) {
+        // typing forward
+        charIndex++;
+        el.textContent = current.slice(0, charIndex);
+        setTimeout(tick, TYPE_SPEED);
+      } else {
+        // fully typed — hold, then start deleting
+        setTimeout(deleteTick, HOLD_TIME);
+      }
+    }
+
+    function deleteTick() {
+      if (charIndex > 0) {
+        charIndex--;
+        el.textContent = words[wordIndex].slice(0, charIndex);
+        setTimeout(deleteTick, DELETE_SPEED);
+      } else {
+        // fully deleted — move to next word and type it
+        wordIndex = (wordIndex + 1) % words.length;
+        if (label) label.textContent = words[wordIndex];
+        setTimeout(tick, TYPE_SPEED);
+      }
+    }
+
+    // Begin the cycle after the initial hold (first word is already shown in HTML)
+    setTimeout(deleteTick, HOLD_TIME);
   })();
 
   /* ── FAQ ── */
