@@ -79,6 +79,8 @@
     }
 
     .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    /* ── NAV LOGO IMAGE SIZE — change height here if needed ── */
+    .nav-logo-img { height: 36px; width: auto; display: block; object-fit: contain; }
     .nav-logo svg { width: 34px; height: 34px; flex-shrink: 0; }
     .nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
     .nav-logo-text .nav-wordmark span.swap,
@@ -779,6 +781,8 @@
       flex-wrap: wrap; gap: 16px;
     }
     .footer-brand { display: flex; align-items: center; gap: 4px; text-decoration: none; }
+    /* ── FOOTER LOGO SIZE — change height here if needed ── */
+    .footer-logo-img { height: 32px; width: auto; display: block; object-fit: contain; }
     .footer-brand span.s,
     .footer-brand span.q {
       font-family: 'Rajdhani', sans-serif; font-size: 1.35rem; font-weight: 700;
@@ -806,11 +810,23 @@
 
       .hero {
         flex-direction: column;
-        padding: calc(var(--nav-h) + 40px) 5% 56px;
-        text-align: center; gap: 40px;
-        min-height: auto;
+        padding: calc(var(--nav-h) + 24px) 5% 48px;
+        text-align: center; gap: 28px;
+        min-height: unset; /* no forced full-screen height on mobile */
+        align-items: center;
       }
       .hero-text { max-width: 100%; }
+      .hero-visual {
+        flex: unset;
+        width: clamp(260px, 80vw, 340px);
+        height: clamp(260px, 80vw, 340px);
+        position: relative;
+        display: flex; justify-content: center; align-items: center;
+      }
+      /* Orbit fills its container on mobile */
+      .hero-visual .orbit-scene {
+        width: 100%; height: 100%;
+      }
       .hero p { margin-left: auto; margin-right: auto; max-width: 480px; }
       .hero-actions { justify-content: center; }
 
@@ -819,30 +835,30 @@
         height: clamp(220px, 70vw, 300px);
       }
 
-      /* Orbit radii rescaled to match the smaller tablet orbit-scene (7 rings) */
+      /* Orbit radii rescaled for scene clamp(260px,80vw,340px) */
       @keyframes orbit1 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(37px, 11.9vw, 51px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(37px, 11.9vw, 51px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(44px,13.6vw,58px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(44px,13.6vw,58px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
       @keyframes orbit2 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(51px, 16.1vw, 69px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(51px, 16.1vw, 69px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(60px,18.4vw,78px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(60px,18.4vw,78px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
       @keyframes orbit3 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(64px, 20.3vw, 87px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(64px, 20.3vw, 87px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(75px,23.2vw,97px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(75px,23.2vw,97px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
       @keyframes orbit4 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(77px, 24.5vw, 105px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(77px, 24.5vw, 105px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(91px,28vw,119px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(91px,28vw,119px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
       @keyframes orbit5 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(90px, 28.7vw, 123px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(90px, 28.7vw, 123px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(107px,32.8vw,138px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(107px,32.8vw,138px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
       @keyframes orbit6 {
-        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(103px, 32.9vw, 141px)) rotate(calc(-1 * var(--sa))); }
-        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(103px, 32.9vw, 141px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
+        from { transform: translate(-50%,-50%) rotate(var(--sa)) translateX(clamp(122px,37.6vw,159px)) rotate(calc(-1 * var(--sa))); }
+        to   { transform: translate(-50%,-50%) rotate(calc(var(--sa) + 360deg)) translateX(clamp(122px,37.6vw,159px)) rotate(calc(-1 * (var(--sa) + 360deg))); }
       }
 
       .how-header, .coins-header, .faq-header { text-align: center; }
@@ -867,8 +883,16 @@
       .main-nav { padding: 0 6px 0 14px; }
 
       .hero {
-        padding: calc(var(--nav-h) + 32px) 16px 48px;
-        gap: 32px;
+        padding: calc(var(--nav-h) + 16px) 16px 40px;
+        gap: 24px;
+      }
+      .hero-visual {
+        width: clamp(240px, 85vw, 300px);
+        height: clamp(240px, 85vw, 300px);
+        display: flex; justify-content: center; align-items: center;
+      }
+      .hero-visual .orbit-scene {
+        width: 100%; height: 100%;
       }
 
       .btn-primary, .btn-secondary {
@@ -1013,6 +1037,8 @@
     .loader-logo {
       display: flex; align-items: center; gap: 8px;
     }
+    /* ── LOADING SCREEN LOGO SIZE — change height here if needed ── */
+    .loader-logo-img { height: 64px; width: auto; display: block; object-fit: contain; }
     .loader-logo span {
       font-family: 'Rajdhani', 'Segoe UI', sans-serif;
       font-size: 2.2rem; font-weight: 700;
@@ -1057,7 +1083,7 @@
 <!-- PAGE LOADER -->
 <div id="pageLoader" role="status" aria-label="Loading SwapQ">
   <div class="loader-logo">
-    <span class="s">Swap</span><span class="q">Q</span>
+    <img src="SwapQLOGO.png" alt="SwapQ" class="loader-logo-img">
   </div>
   <div class="loader-dots" aria-hidden="true">
     <span></span><span></span><span></span><span></span><span></span>
@@ -1068,13 +1094,8 @@
 <div class="nav-wrap">
 <nav class="main-nav" aria-label="Main navigation">
   <a class="nav-logo" href="#">
-    <svg width="34" height="34" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-      <circle cx="16" cy="16" r="14" stroke="#39E000" stroke-width="2.5"/>
-      <path d="M10 19l6-6 6 6" stroke="#1B2A4A" stroke-width="2.5" stroke-linecap="round"/>
-      <path d="M22 13l-6 6-6-6" stroke="#39E000" stroke-width="2" stroke-linecap="round" opacity=".6"/>
-    </svg>
+    <img src="SwapQLOGO.png" alt="SwapQ logo" class="nav-logo-img">
     <span class="nav-logo-text">
-      <span class="nav-wordmark"><span class="swap">Swap</span><span class="q">Q</span></span>
       <span class="nav-tagline">Fast, Easy &amp; Secure</span>
     </span>
   </a>
@@ -1465,7 +1486,7 @@
 <!-- FOOTER -->
 <footer>
   <a class="footer-brand" href="#">
-    <span class="s">Swap</span><span class="q">Q</span>
+    <img src="SwapQLOGO.png" alt="SwapQ" class="footer-logo-img">
   </a>
   <p>&copy; 2025 SwapQ &middot; Swap Quickly &middot; All rights reserved</p>
   <a href="mailto:support@swapquickly.com" class="footer-email">support@swapquickly.com</a>
